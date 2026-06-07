@@ -1,0 +1,133 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Model artifacts
+# =========================
+*.pkl
+*.joblib
+*.onnx
+
+# =========================
+# Data files
+# =========================
+
+# Raw datasets
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.json
+
+# Processed datasets
+data/processed/*.csv
+data/processed/*.parquet
+
+# Large exports
+*.zip
+*.tar.gz
+
+# =========================
+# Simulation outputs
+# =========================
+data/outputs/
+outputs/
+results/
+reports/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# =========================
+# LightGBM
+# =========================
+LightGBM_model.txt
+
+# =========================
+# Coverage
+# =========================
+.coverage
+htmlcov/
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+*.tmp
+
+# =========================
+# Secrets
+# =========================
+secrets.json
+credentials.json
+service_account.json
+
+data/raw/*
+data/processed/*
+# TSV files
+*.tsv
+!data/raw/sample_matches.csv
+!data/processed/sample_features.csv
+*.cmd
+*.csv
+# =========================
+# Node / React
+# =========================
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+data/scrape
+models/
