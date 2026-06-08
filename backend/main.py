@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
-
+from backend.database import init_db
 from backend.state import app_state
 from backend.models import MatchResult, SimulationStatus
 from backend.simulator import run_simulation_background
@@ -15,16 +15,19 @@ from backend.routers.groups import router as groups_router
 from backend.routers.probabilities import router as probabilities_router
 from backend.routers.bracket import router as bracket_router
 from backend.routers.matches import router as matches_router
+from backend.routers.pipeline import router as pipeline_router
+from backend.save_group_standing import initialize_group_standings
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Loading LightGBM model...")
+    print("Loading model...")
     await app_state.initialize()
-    if not app_state.probabilities:
-        print("No cache found, running simulation...")
-        asyncio.create_task(run_simulation_background(app_state))
-    else:
-        print("Cache loaded, skipping simulation.")
+    init_db()
+
+    initialize_group_standings()
+    # no simulation — pipeline handles it
     yield
+    print("Shutting down...")
 app = FastAPI(
     title="WC 2026 Forecast API",
     version="1.0.0",
@@ -45,6 +48,7 @@ app.include_router(groups_router,        prefix="/api/groups",        tags=["Gro
 app.include_router(probabilities_router, prefix="/api/probabilities", tags=["Probabilities"])
 app.include_router(bracket_router,       prefix="/api/bracket",       tags=["Bracket"])
 app.include_router(matches_router,       prefix="/api/matches",       tags=["Matches"])
+app.include_router(pipeline_router, prefix="/api/pipeline", tags=["Pipeline"])
 @app.get("/")
 def root():
     return {"status": "ok", "message": "WC 2026 Forecast API"}

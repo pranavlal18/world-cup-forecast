@@ -10,6 +10,7 @@ from datetime import datetime
 from itertools import combinations
 from multiprocessing import Pool
 from .config import GROUPS, ROUND_ORDER, N_SIMULATIONS, TOURNAMENT_WEIGHT
+from backend.database import get_db
 
 
 # ── Module-level globals for multiprocessing worker ───────────────────────────
@@ -54,15 +55,10 @@ def _build_match_features(home_stats, away_stats, feature_list):
 
 
 def _predict_match(model, features, hs, as_, home_team=None, away_team=None, match_probs=None):
-    if match_probs and home_team and away_team:
-        key = (home_team, away_team)
-        if key in match_probs:
-            p = match_probs[key]
-            return p[0], p[1], p[2]
     X = _build_match_features(hs, as_, features)
     probs = model.predict_proba(X)[0]
-    return probs[2], probs[1], probs[0]
 
+    return probs[2], probs[1], probs[0]
 
 def _simulate_match(p_home, p_draw, p_away):
     r = np.random.random()
@@ -191,6 +187,36 @@ async def run_simulation_background(state):
                 probs[team][r] = round(counts[team][r] / N_SIMULATIONS * 100, 1)
 
         state.probabilities = probs
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM probabilities")
+
+        for team, rounds in probs.items():
+            cur.execute("""
+                INSERT INTO probabilities (
+                    team,
+                    round_of_32,
+                    round_of_16,
+                    quarter_final,
+                    semi_final,
+                    final,
+                    champion
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                team,
+                rounds.get("Round of 32", 0),
+                rounds.get("Round of 16", 0),
+                rounds.get("Quarter-Final", 0),
+                rounds.get("Semi-Final", 0),
+                rounds.get("Final", 0),
+                rounds.get("Champion", 0),
+            ))
+
+        conn.commit()
+        conn.close()
         state.save_cache()
         state.last_sim_run  = datetime.utcnow()
         state.n_simulations_run = N_SIMULATIONS
@@ -201,6 +227,7 @@ async def run_simulation_background(state):
 
 
 def _run_mc_sync(state):
+    import os
     team_stats  = state.team_stats
     model       = state.model
     features    = state.features
@@ -209,18 +236,23 @@ def _run_mc_sync(state):
     all_teams = [t for g in GROUPS.values() for t in g]
     counts = {t: {r: 0 for r in ROUND_ORDER} for t in all_teams}
 
-    import numpy as np
-    np.random.seed(42)
-    _pool_initializer(team_stats, model, features, match_probs)
+    n_workers = max(1, os.cpu_count() - 1)
+    print(f"  Simulating on {n_workers} cores...", flush=True)
 
-    for i in range(N_SIMULATIONS):
-        sim_results = _run_sim_wrapper(i)
-        for team, furthest in sim_results.items():
-            idx = ROUND_ORDER.index(furthest)
-            for r in ROUND_ORDER[1:idx + 1]:
-                counts[team][r] += 1
-        state.sim_progress = i + 1
-        if i % 1000 == 0:
-            print(f"  {i:,}/{N_SIMULATIONS:,}...", flush=True)
+    with Pool(
+        processes=n_workers,
+        initializer=_pool_initializer,
+        initargs=(team_stats, model, features, match_probs),
+    ) as pool:
+        for i, sim_results in enumerate(
+            pool.imap_unordered(_run_sim_wrapper, range(N_SIMULATIONS)), 1
+        ):
+            for team, furthest in sim_results.items():
+                idx = ROUND_ORDER.index(furthest)
+                for r in ROUND_ORDER[1:idx + 1]:
+                    counts[team][r] += 1
+            state.sim_progress = i
+            if i % 2000 == 0:
+                print(f"  {i:,}/{N_SIMULATIONS:,}...", flush=True)
 
     return counts

@@ -6,8 +6,9 @@ import { usePolling } from "./hooks/usePolling.js";
 import { api } from "./utils/api.js";
 
 const NAV = [
-  { id: "odds",   label: "🏆 Odds" },
-  { id: "groups", label: "⚽ Groups" },
+  { id: "odds",    label: "🏆 Odds" },
+  { id: "groups",  label: "⚽ Groups",  hideAfter: "2026-06-28" },
+  { id: "bracket", label: "🗓 Bracket", showAfter: "2026-06-28" },
 ];
 
 export default function App() {

@@ -28,7 +28,7 @@ class AppState:
         self.team_stats: dict = {}
         self.match_probs: dict = {}
         self.all_teams: list = []
-        self.sim_progress: int = 0
+        
 
         # Live results recorded via POST /result
         self.recorded_results: list[MatchResult] = []
@@ -36,13 +36,10 @@ class AppState:
         # Current group standings (updated after each result)
         self.standings: dict[str, dict[str, GroupStanding]] = {}
 
-        # Latest simulation output  {team: {round: probability}}
-        self.probabilities: dict = {}
-
-        # Simulation metadata
-        self.last_sim_run: Optional[datetime] = None
-        self.sim_running: bool = False
-        self.n_simulations_run: int = 0
+        
+        
+        
+        
 
     # ── Initialisation ────────────────────────────────────────────────────────
 
@@ -78,15 +75,7 @@ class AppState:
             baseline_elo[home] = row["home_elo"]
             baseline_elo[away] = row["away_elo"]
 
-        # Apply pre-computed match probs
-        self.match_probs = {}
-        for _, row in baseline_df.iterrows():
-            home = PLAYOFF_MAP.get(row["home_team"], row["home_team"])
-            away = PLAYOFF_MAP.get(row["away_team"], row["away_team"])
-            self.match_probs[(home, away)] = (
-                row["p_home_win"], row["p_draw"], row["p_away_win"]
-            )
-
+        
         # Override Elos
         for team in self.all_teams:
             if team in baseline_elo:
@@ -195,10 +184,10 @@ class AppState:
 
     def get_status(self) -> SimulationStatus:
         return SimulationStatus(
-            last_run=self.last_sim_run,
-            simulations=self.n_simulations_run,
-            is_running=self.sim_running,
-            results_available=bool(self.probabilities),
+            last_run=None,
+            simulations=0,
+            is_running=False,
+            results_available=True,  # pipeline handles this
         )
 
 

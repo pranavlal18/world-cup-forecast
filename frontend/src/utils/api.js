@@ -19,7 +19,8 @@ async function post(path, body) {
 
 export const api = {
   getStatus:        () => get("/api/status"),
-  getProbabilities: () => get("/api/probabilities/"),
+  getProbabilities: () => get("/api/pipeline/"),
+  getPipelineMeta:  () => get("/api/pipeline/meta"),
   getGroups:        () => get("/api/groups/"),
   getBracket:       () => get("/api/bracket/"),
   getMatches:       () => get("/api/matches/"),

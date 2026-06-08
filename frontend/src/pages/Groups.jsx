@@ -3,11 +3,10 @@ import { useCallback } from "react";
 import { usePolling } from "../hooks/usePolling.js";
 import { api } from "../utils/api.js";
 import { GroupTable } from "../components/GroupTable.jsx";
-import { ResultInput } from "../components/ResultInput.jsx";
 
 export function Groups() {
   const fetcher = useCallback(() => api.getGroups(), []);
-  const { data, loading, error, refresh } = usePolling(fetcher, 60_000);
+  const { data, loading, error, lastUpdated } = usePolling(fetcher, 60_000);
 
   if (loading) return (
     <div style={{ textAlign: "center", padding: "60px 0", color: "rgba(255,255,255,0.3)" }}>
@@ -19,8 +18,7 @@ export function Groups() {
   );
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px", alignItems: "start" }}>
-      {/* Group tables grid */}
+    <div>
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
@@ -30,17 +28,11 @@ export function Groups() {
           <GroupTable key={g.group} group={g.group} standings={g.standings} />
         ))}
       </div>
-
-      {/* Result input sidebar */}
-      <div style={{ position: "sticky", top: "80px" }}>
-        <ResultInput onSuccess={refresh} />
-        <p style={{
-          fontSize: "11px", color: "rgba(255,255,255,0.25)",
-          marginTop: "10px", lineHeight: 1.6,
-        }}>
-          Submitting a result updates group standings and triggers a new Monte Carlo simulation (~60 seconds).
+      {lastUpdated && (
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", marginTop: "16px", textAlign: "right" }}>
+          Last updated: {lastUpdated.toLocaleTimeString()} · auto-refresh 60s
         </p>
-      </div>
+      )}
     </div>
   );
 }

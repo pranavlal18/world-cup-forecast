@@ -22,14 +22,17 @@ const medalColor = (i) => {
 };
 
 export function Odds() {
-  const fetcher = useCallback(() => api.getProbabilities(), []);
+  const fetcher = useCallback(
+  () => api.getProbabilities().then(d => d.teams),  // ← unwrap teams array
+  []
+);
   const { data, loading, error, lastUpdated } = usePolling(fetcher, 60_000);
 
   if (loading) return <LoadingState />;
   if (error)   return <ErrorState msg={error} />;
 
   const top5  = data.slice(0, 5);
-  const rest  = data.slice(5);
+  
 
   return (
     <div>
