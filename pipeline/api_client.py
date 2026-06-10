@@ -66,6 +66,8 @@ TEAM_NAME_MAP = {
     "Czech Republic":               "Czechia",
     "Curacao":                      "Curaçao",
     "Cape Verde Islands":           "Cape Verde",
+    "Bosnia & Herzegovina":   "Bosnia and Herzegovina",
+    "Bosnia-Herzegovina":     "Bosnia and Herzegovina",
 }
 
 def _normalise(name) -> str:
@@ -281,56 +283,45 @@ def _mark_processed(match_ids: list):
             [(mid,) for mid in match_ids]
         )
 
+
+
 def reset_processed():
-    """
-    Clear processed match history — use if you need to rerun Elo
-    from scratch (e.g. after fixing team name mappings).
-    """
-    if PROCESSED_PATH.exists():
-        PROCESSED_PATH.unlink()
+    from backend.database import get_db
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM processed_matches")
     print("  Processed match history cleared.")
 
 
-# ── CSV helper (update_elo.py compatibility) ──────────────────────────────────
-def save_fixtures_to_db(fixtures):
-    from backend.database import get_db
+def save_fixtures_to_db(fixtures: list):
+    try:
+        from backend.database import get_db
+    except ModuleNotFoundError:
+        print("  ⚠ backend module not found — skipping DB save")
+        return False
 
     with get_db() as conn:
         cur = conn.cursor()
-
         for f in fixtures:
             cur.execute("""
                 INSERT INTO fixtures (
-                    match_id,
-                    date,
-                    time_utc,
-                    stage,
-                    group_letter,
-                    team1,
-                    team2,
-                    status
+                    match_id, date, time_utc, stage,
+                    group_letter, team1, team2, status
                 )
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (match_id)
-                DO UPDATE SET
-                    date = EXCLUDED.date,
-                    time_utc = EXCLUDED.time_utc,
-                    stage = EXCLUDED.stage,
+                ON CONFLICT (match_id) DO UPDATE SET
+                    date         = EXCLUDED.date,
+                    time_utc     = EXCLUDED.time_utc,
+                    stage        = EXCLUDED.stage,
                     group_letter = EXCLUDED.group_letter,
-                    team1 = EXCLUDED.team1,
-                    team2 = EXCLUDED.team2,
-                    status = EXCLUDED.status
+                    team1        = EXCLUDED.team1,
+                    team2        = EXCLUDED.team2,
+                    status       = EXCLUDED.status
             """, (
-                int(f["match_id"]),
-                f["date"],
-                f["time"],
-                f["stage"],
-                f["group"],
-                f["team1"],
-                f["team2"],
-                f["status"]
+                int(f["match_id"]), f["date"], f["time"],
+                f["stage"], f["group"], f["team1"], f["team2"], f["status"],
             ))
-
+    print(f"  Saved {len(fixtures)} fixtures to database")
 def _save_new_results_csv(results: list[dict]):
     """Write new_results.csv in the format expected by update_elo.py."""
     import csv
@@ -363,9 +354,10 @@ if __name__ == "__main__":
         reset_processed()
 
     elif args.cache:
-        fixtures = save_fixtures_cache( )
-        save_fixtures_to_db(fixtures)
-        print(f"Saved {len(fixtures)} fixtures to database")
+        fixtures = save_fixtures_cache()
+        result = save_fixtures_to_db(fixtures)
+        if result is not False:
+            print(f"  Saved {len(fixtures)} fixtures to database")
         print(f"Last  fixture: {fixtures[-1]}")
 
     elif args.live:

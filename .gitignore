@@ -37,22 +37,10 @@ Thumbs.db
 # =========================
 # Model artifacts
 # =========================
-*.pkl
 *.joblib
 *.onnx
 
-# =========================
-# Data files
-# =========================
 
-# Raw datasets
-data/raw/*.csv
-data/raw/*.xlsx
-data/raw/*.json
-
-# Processed datasets
-data/processed/*.csv
-data/processed/*.parquet
 
 # Large exports
 *.zip
@@ -104,14 +92,12 @@ secrets.json
 credentials.json
 service_account.json
 
-data/raw/*
-data/processed/*
+
 # TSV files
 *.tsv
-!data/raw/sample_matches.csv
-!data/processed/sample_features.csv
+
 *.cmd
-*.csv
+
 # =========================
 # Node / React
 # =========================

@@ -1,0 +1,88 @@
+
+============================================================
+Model : Baseline
+Split : Validation  (1079 rows)
+Accuracy  : 0.6126
+Log-loss  : 0.8558
+============================================================
+              precision    recall  f1-score   support
+
+    Away Win       0.59      0.69      0.64       304
+        Draw       0.36      0.28      0.32       281
+    Home Win       0.73      0.76      0.74       494
+
+    accuracy                           0.61      1079
+   macro avg       0.56      0.57      0.57      1079
+weighted avg       0.60      0.61      0.60      1079
+
+
+============================================================
+Model : Baseline
+Split : Test  (1060 rows)
+Accuracy  : 0.6292
+Log-loss  : 0.7978
+============================================================
+              precision    recall  f1-score   support
+
+    Away Win       0.66      0.73      0.69       310
+        Draw       0.30      0.30      0.30       244
+    Home Win       0.77      0.73      0.75       506
+
+    accuracy                           0.63      1060
+   macro avg       0.58      0.58      0.58      1060
+weighted avg       0.63      0.63      0.63      1060
+
+
+Feature Importance — Baseline:
+elo_diff          4668
+home_advantage     763
+
+
+============================================================
+Model : Full LightGBM
+Split : Validation  (1079 rows)
+Accuracy  : 0.6043
+Log-loss  : 0.8467
+============================================================
+              precision    recall  f1-score   support
+
+    Away Win       0.61      0.67      0.64       304
+        Draw       0.35      0.31      0.32       281
+    Home Win       0.73      0.73      0.73       494
+
+    accuracy                           0.60      1079
+   macro avg       0.56      0.57      0.56      1079
+weighted avg       0.60      0.60      0.60      1079
+
+
+============================================================
+Model : Full LightGBM
+Split : Test  (1060 rows)
+Accuracy  : 0.6321
+Log-loss  : 0.7838
+============================================================
+              precision    recall  f1-score   support
+
+    Away Win       0.69      0.69      0.69       310
+        Draw       0.33      0.38      0.35       244
+    Home Win       0.77      0.72      0.75       506
+
+    accuracy                           0.63      1060
+   macro avg       0.60      0.60      0.60      1060
+weighted avg       0.65      0.63      0.64      1060
+
+
+Feature Importance — Full LightGBM:
+elo_diff              1409
+home_elo               815
+away_elo               812
+home_avg_opp_elo5      645
+away_avg_opp_elo5      618
+weighted_form_diff     592
+away_elo_momentum      557
+home_elo_momentum      506
+goals_diff             447
+conceded_diff          431
+home_advantage         293
+tournament_weight      252
+form_diff              217

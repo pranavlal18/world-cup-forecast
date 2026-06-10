@@ -2,11 +2,14 @@
 import { useState, useCallback } from "react";
 import { Odds } from "./pages/Odds.jsx";
 import { Groups } from "./pages/Groups.jsx";
+import { Matches } from "./pages/Matches.jsx"
 import { usePolling } from "./hooks/usePolling.js";
 import { api } from "./utils/api.js";
 
 const NAV = [
   { id: "odds",    label: "🏆 Odds" },
+  { id: "matches", label: "📅 Matches" },
+
   { id: "groups",  label: "⚽ Groups",  hideAfter: "2026-06-28" },
   { id: "bracket", label: "🗓 Bracket", showAfter: "2026-06-28" },
 ];
@@ -98,6 +101,7 @@ export default function App() {
       <main style={{ padding: "24px" }}>
         {page === "odds"   && <Odds />}
         {page === "groups" && <Groups />}
+        {page === "matches" && <Matches />}
       </main>
 
       {/* Footer */}

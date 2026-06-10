@@ -11,6 +11,8 @@ from itertools import combinations
 from multiprocessing import Pool
 from .config import GROUPS, ROUND_ORDER, N_SIMULATIONS, TOURNAMENT_WEIGHT
 from backend.database import get_db
+from backend.config import GROUPS
+
 
 
 # ── Module-level globals for multiprocessing worker ───────────────────────────
@@ -27,6 +29,8 @@ def _pool_initializer(team_stats, model, features, match_probs):
     _features    = features
     _match_probs = match_probs
 
+def _team_group(team):
+    return next((g for g, teams in GROUPS.items() if team in teams), None)
 
 def _run_sim_wrapper(_):
     return _run_single_simulation(_team_stats, _model, _features, _match_probs)
@@ -188,36 +192,37 @@ async def run_simulation_background(state):
 
         state.probabilities = probs
 
-        conn = get_db()
-        cur = conn.cursor()
-
-        cur.execute("DELETE FROM probabilities")
-
-        for team, rounds in probs.items():
-            cur.execute("""
-                INSERT INTO probabilities (
+        with get_db() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM probabilities")
+            for team, rounds in probs.items():
+                cur.execute("""
+                    INSERT INTO probabilities (
+                        team, group_letter, elo,
+                        round_of_32, round_of_16, quarter_final,
+                        semi_final, final, champion
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                    ON CONFLICT (team) DO UPDATE SET
+                        group_letter  = EXCLUDED.group_letter,
+                        elo           = EXCLUDED.elo,
+                        round_of_32   = EXCLUDED.round_of_32,
+                        round_of_16   = EXCLUDED.round_of_16,
+                        quarter_final = EXCLUDED.quarter_final,
+                        semi_final    = EXCLUDED.semi_final,
+                        final         = EXCLUDED.final,
+                        champion      = EXCLUDED.champion
+                """, (
                     team,
-                    round_of_32,
-                    round_of_16,
-                    quarter_final,
-                    semi_final,
-                    final,
-                    champion
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (
-                team,
-                rounds.get("Round of 32", 0),
-                rounds.get("Round of 16", 0),
-                rounds.get("Quarter-Final", 0),
-                rounds.get("Semi-Final", 0),
-                rounds.get("Final", 0),
-                rounds.get("Champion", 0),
-            ))
-
-        conn.commit()
-        conn.close()
-        state.save_cache()
+                    _team_group(team),
+                    state.team_stats.get(team, {}).get("elo", 0),
+                    rounds.get("Round of 32", 0),
+                    rounds.get("Round of 16", 0),
+                    rounds.get("Quarter-Final", 0),
+                    rounds.get("Semi-Final", 0),
+                    rounds.get("Final", 0),
+                    rounds.get("Champion", 0),
+                ))
+        
         state.last_sim_run  = datetime.utcnow()
         state.n_simulations_run = N_SIMULATIONS
         print(f"Simulation complete — {N_SIMULATIONS:,} runs")

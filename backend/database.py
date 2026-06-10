@@ -1,4 +1,4 @@
-import os
+import os, time
 import psycopg2
 from contextlib import contextmanager
 from dotenv import load_dotenv
@@ -8,7 +8,15 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 @contextmanager
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = None
+    for attempt in range(3):
+        try:
+            conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
+            break
+        except psycopg2.OperationalError as e:
+            if attempt == 2:
+                raise
+            time.sleep(2 ** attempt)
     try:
         yield conn
         conn.commit()
@@ -17,6 +25,7 @@ def get_db():
         raise
     finally:
         conn.close()
+
 
 def init_db():
     """Create tables if they don't exist."""

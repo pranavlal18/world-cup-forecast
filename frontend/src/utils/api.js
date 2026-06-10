@@ -25,4 +25,6 @@ export const api = {
   getBracket:       () => get("/api/bracket/"),
   getMatches:       () => get("/api/matches/"),
   postResult:       (data) => post("/api/result", data),
+  getMatchProbabilities: () => get("/api/match-probabilities/"),
+
 };

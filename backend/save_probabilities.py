@@ -8,8 +8,7 @@ def save_probabilities_to_db(teams):
         cur.execute("DELETE FROM probabilities")
 
         for team in teams:
-            print(type(team["elo"]))
-            print(team)
+            
             cur.execute("""
                 INSERT INTO probabilities (
                     team,

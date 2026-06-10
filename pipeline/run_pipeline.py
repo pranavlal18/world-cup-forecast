@@ -1,12 +1,6 @@
 """
 pipeline/run_pipeline.py
-════════════════════════════════════════════════════════════════════════
-Master pipeline runner. Orchestrates:
-  1. Fetch new results from football-data.org API
-  2. Update Elo ratings
-  3. Re-run Monte Carlo simulation (parallel)
-  4. Write champion_probabilities.json for React UI
-════════════════════════════════════════════════════════════════════════
+Master pipeline runner.
 """
 
 import sys, os, json, pickle
@@ -17,22 +11,18 @@ from datetime import datetime
 from itertools import combinations
 from multiprocessing import Pool
 import importlib.util
-from pipeline.group_tracker import update_group_standings
-from backend.save_probabilities import save_probabilities_to_db
-from dotenv import load_dotenv
-load_dotenv()
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
+
+from dotenv import load_dotenv
+load_dotenv()
 
 def load_module(path, name):
     spec = importlib.util.spec_from_file_location(name, path)
     mod  = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
-
-# Phase 1: API client replaces scraper
-from pipeline.api_client import fetch_completed_matches
 
 elo_mod      = load_module(ROOT / "pipeline/update_elo.py", "update_elo")
 update_elo   = elo_mod.run
@@ -44,7 +34,7 @@ PROBS_PATH    = ROOT / "data/raw/future_match_probabilities_baseline.csv"
 OUTPUT_JSON   = ROOT / "data/pipeline/champion_probabilities.json"
 OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 
-N_SIMULATIONS     = 10_000
+N_SIMULATIONS     = 5_000
 TOURNAMENT_WEIGHT = 5
 WORLD_CUP_AVG_ELO = 1750
 
@@ -214,29 +204,31 @@ def run_simulation(team_stats, model, features, match_probs):
     return results
 
 def run_pipeline(force_simulate=False):
+    from pipeline.api_client import fetch_completed_matches, load_fixtures_cache
+    from pipeline.group_tracker import update_group_standings
+    from backend.save_probabilities import save_probabilities_to_db
+
     print(f"\n{'='*60}")
     print(f"WC 2026 Pipeline  [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
     print(f"{'='*60}")
 
-    # Step 1: API replaces scraper
     new_results = fetch_completed_matches()
-    for r in new_results:
-        if r["stage"] == "Group Stage":
-            # Find match_no from fixtures cache
-            from pipeline.api_client import load_fixtures_cache
-            fixtures = load_fixtures_cache()
-            match = next(
-                (f for f in fixtures
-                if f["team1"] == r["home_team"] and f["team2"] == r["away_team"]),
-                None
-            )
-            match_no = match["match_id"] if match else 0
-            update_group_standings(
-                match_no, r["home_team"], r["away_team"],
-                r["home_score"], r["away_score"]
-            )
 
-    # Step 2: Update Elo
+    if new_results:
+        fixtures = load_fixtures_cache()
+        for r in new_results:
+            if r["stage"] == "Group Stage":
+                match = next(
+                    (f for f in fixtures
+                     if f["team1"] == r["home_team"] and f["team2"] == r["away_team"]),
+                    None
+                )
+                match_no = match["match_id"] if match else 0
+                update_group_standings(
+                    match_no, r["home_team"], r["away_team"],
+                    r["home_score"], r["away_score"]
+                )
+
     if new_results or force_simulate:
         current_ratings = update_elo()
     else:
@@ -265,7 +257,7 @@ def run_pipeline(force_simulate=False):
         team_stats[team]=adjust_stats(stats)
 
     np.random.seed(None)
-    n_workers=max(1,os.cpu_count()-1)
+    n_workers = int(os.getenv("N_WORKERS", max(1, (os.cpu_count() or 2) - 1)))
     print(f"  Running {N_SIMULATIONS:,} simulations on {n_workers} cores...")
     counts={t:{r:0 for r in ROUND_ORDER} for t in all_teams}
 
@@ -275,7 +267,7 @@ def run_pipeline(force_simulate=False):
             for team,furthest in sim.items():
                 idx=ROUND_ORDER.index(furthest)
                 for r in ROUND_ORDER[1:idx+1]: counts[team][r]+=1
-            if i%2000==0: print(f"  {i:,}/{N_SIMULATIONS:,}...",flush=True)
+            if i%1000==0: print(f"  {i:,}/{N_SIMULATIONS:,}...",flush=True)
 
     print(f"  {N_SIMULATIONS:,}/{N_SIMULATIONS:,} done!")
 
@@ -292,10 +284,8 @@ def run_pipeline(force_simulate=False):
             "final":        round(counts[team]["Final"]         /N_SIMULATIONS*100,1),
             "champion":     round(counts[team]["Champion"]      /N_SIMULATIONS*100,1),
         })
-        
 
     save_probabilities_to_db(output["teams"])
-
     print("Saved probabilities to Supabase")
     output["teams"].sort(key=lambda x:-x["champion"])
 
