@@ -67,26 +67,34 @@ export function Bracket() {
   );
 
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: `repeat(${STAGES.length}, 1fr)`,
-      gap: "16px", overflowX: "auto",
-    }}>
-      {STAGES.map(stage => (
-        <div key={stage}>
-          <div style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "14px", letterSpacing: "2px",
-            color: "#e8b84b", marginBottom: "12px",
-            textAlign: "center",
-          }}>
-            {stage.toUpperCase()}
-          </div>
-          {(data[stage] || []).map(match => (
-            <MatchCard key={match.match_id} match={match} />
+    <div className="scroll-container-wrapper">
+      <div className="mobile-scroll-helper">
+        <span>↔️ Swipe horizontally to view full knockout bracket stages</span>
+      </div>
+      <div className="scroll-container" style={{ paddingBottom: "12px" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${STAGES.length}, 1fr)`,
+          gap: "16px",
+          minWidth: "1100px",
+        }}>
+          {STAGES.map(stage => (
+            <div key={stage}>
+              <div style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "14px", letterSpacing: "2px",
+                color: "#e8b84b", marginBottom: "12px",
+                textAlign: "center",
+              }}>
+                {stage.toUpperCase()}
+              </div>
+              {(data[stage] || []).map(match => (
+                <MatchCard key={match.match_id} match={match} />
+              ))}
+            </div>
           ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }

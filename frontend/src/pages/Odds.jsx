@@ -37,18 +37,9 @@ export function Odds() {
   return (
     <div>
       {/* Hero — top 5 */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-        gap: "12px", marginBottom: "32px",
-      }}>
+      <div className="odds-hero-grid">
         {top5.map((t, i) => (
-          <div key={t.team} style={{
-            background: "rgba(255,255,255,0.04)",
-            border: `1px solid ${i === 0 ? "rgba(255,215,0,0.3)" : "rgba(255,255,255,0.08)"}`,
-            borderRadius: "12px", padding: "16px",
-            position: "relative", overflow: "hidden",
-          }}>
+          <div key={t.team} className={`hero-card ${i === 0 ? "gold-card" : ""}`}>
             {i === 0 && (
               <div style={{
                 position: "absolute", top: 0, left: 0, right: 0, height: "2px",
@@ -74,65 +65,71 @@ export function Odds() {
       </div>
 
       {/* Full table */}
-      <div style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: "12px", overflow: "hidden",
-      }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "28px 1fr 60px repeat(5, 80px) 100px",
-          padding: "8px 16px",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
-          fontSize: "11px", color: "rgba(255,255,255,0.35)",
-          letterSpacing: "0.5px",
-        }}>
-          <span>#</span>
-          <span>Team</span>
-          <span style={{ textAlign: "center" }}>Elo</span>
-          {ROUNDS.slice(0, -1).map(r => (
-            <span key={r.key} style={{ textAlign: "center" }}>{r.label}</span>
-          ))}
-          <span style={{ textAlign: "center" }}>🏆 Champion</span>
+      <div className="scroll-container-wrapper">
+        <div className="mobile-scroll-helper">
+          <span>↔️ Swipe horizontally to view full standings</span>
         </div>
-
-        {data.map((t, i) => (
-          <div key={t.team} style={{
-            display: "grid",
-            gridTemplateColumns: "28px 1fr 60px repeat(5, 80px) 100px",
-            padding: "10px 16px",
-            borderBottom: i < data.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-            alignItems: "center",
-            background: i < 3 ? "rgba(232,184,75,0.03)" : "transparent",
+        <div className="scroll-container" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{
+            minWidth: "760px",
+            background: "rgba(255,255,255,0.03)",
           }}>
-            <span style={{ fontSize: "12px", color: medalColor(i), fontWeight: 600 }}>
-              {i + 1}
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <TeamFlag team={t.team} size={16} />
-              <div>
-                <div style={{ fontSize: "13px", color: "#fff" }}>{t.team}</div>
-                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
-                  Group {t.group}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "28px 1fr 60px repeat(5, 80px) 100px",
+              padding: "8px 16px",
+              borderBottom: "1px solid rgba(255,255,255,0.07)",
+              fontSize: "11px", color: "rgba(255,255,255,0.35)",
+              letterSpacing: "0.5px",
+            }}>
+              <span>#</span>
+              <span>Team</span>
+              <span style={{ textAlign: "center" }}>Elo</span>
+              {ROUNDS.slice(0, -1).map(r => (
+                <span key={r.key} style={{ textAlign: "center" }}>{r.label}</span>
+              ))}
+              <span style={{ textAlign: "center" }}>🏆 Champion</span>
+            </div>
+
+            {data.map((t, i) => (
+              <div key={t.team} style={{
+                display: "grid",
+                gridTemplateColumns: "28px 1fr 60px repeat(5, 80px) 100px",
+                padding: "10px 16px",
+                borderBottom: i < data.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                alignItems: "center",
+                background: i < 3 ? "rgba(232,184,75,0.03)" : "transparent",
+              }}>
+                <span style={{ fontSize: "12px", color: medalColor(i), fontWeight: 600 }}>
+                  {i + 1}
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <TeamFlag team={t.team} size={16} />
+                  <div>
+                    <div style={{ fontSize: "13px", color: "#fff" }}>{t.team}</div>
+                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+                      Group {t.group}
+                    </div>
+                  </div>
+                </div>
+                <span style={{
+                  textAlign: "center", fontSize: "12px",
+                  color: "rgba(255,255,255,0.4)", fontVariantNumeric: "tabular-nums",
+                }}>{Math.round(t.elo)}</span>
+                {ROUNDS.slice(0, -1).map(r => (
+                  <span key={r.key} style={{
+                    textAlign: "center", fontSize: "12px",
+                    color: "rgba(255,255,255,0.6)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}>{t[r.key].toFixed(1)}%</span>
+                ))}
+                <div style={{ padding: "0 8px" }}>
+                  <ProbabilityBar value={t.champion} max={data[0].champion} color="#e8b84b" />
                 </div>
               </div>
-            </div>
-            <span style={{
-              textAlign: "center", fontSize: "12px",
-              color: "rgba(255,255,255,0.4)", fontVariantNumeric: "tabular-nums",
-            }}>{Math.round(t.elo)}</span>
-            {ROUNDS.slice(0, -1).map(r => (
-              <span key={r.key} style={{
-                textAlign: "center", fontSize: "12px",
-                color: "rgba(255,255,255,0.6)",
-                fontVariantNumeric: "tabular-nums",
-              }}>{t[r.key].toFixed(1)}%</span>
             ))}
-            <div style={{ padding: "0 8px" }}>
-              <ProbabilityBar value={t.champion} max={data[0].champion} color="#e8b84b" />
-            </div>
           </div>
-        ))}
+        </div>
       </div>
 
       {lastUpdated && (

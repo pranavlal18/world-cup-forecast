@@ -184,15 +184,9 @@ function DrawRow({ prob }) {
 
 function FilterBar({ active, onChange }) {
   return (
-    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "20px" }}>
+    <div className="matches-filter-bar">
       {STAGES.map(s => (
-        <button key={s} onClick={() => onChange(s)} style={{
-          background: active === s ? "rgba(232,184,75,0.15)" : "rgba(255,255,255,0.04)",
-          border: active === s ? "1px solid rgba(232,184,75,0.4)" : "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "6px", padding: "5px 12px",
-          color: active === s ? "#e8b84b" : "rgba(255,255,255,0.5)",
-          fontSize: "12px", cursor: "pointer", transition: "all 0.15s",
-        }}>
+        <button key={s} onClick={() => onChange(s)} className={`matches-filter-button ${active === s ? "active" : ""}`}>
           {s}
         </button>
       ))}
@@ -272,7 +266,7 @@ export function Matches() {
           <DateHeader date={date} />
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: "12px",
             marginBottom: "8px",
           }}>

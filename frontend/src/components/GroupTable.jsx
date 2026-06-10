@@ -22,7 +22,7 @@ export function GroupTable({ group, standings }) {
         </span>
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+      <table className="group-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
         <thead>
           <tr style={{ color: "rgba(255,255,255,0.35)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             {["Team", "P", "W", "D", "L", "GD", "Pts"].map(h => (

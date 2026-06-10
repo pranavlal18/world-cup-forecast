@@ -2,16 +2,16 @@
 import { useState, useCallback } from "react";
 import { Odds } from "./pages/Odds.jsx";
 import { Groups } from "./pages/Groups.jsx";
-import { Matches } from "./pages/Matches.jsx"
+import { Matches } from "./pages/Matches.jsx";
+import { Bracket } from "./pages/Bracket.jsx";
 import { usePolling } from "./hooks/usePolling.js";
 import { api } from "./utils/api.js";
 
 const NAV = [
   { id: "odds",    label: "🏆 Odds" },
   { id: "matches", label: "📅 Matches" },
-
-  { id: "groups",  label: "⚽ Groups",  hideAfter: "2026-06-28" },
-  { id: "bracket", label: "🗓 Bracket", showAfter: "2026-06-28" },
+  { id: "groups",  label: "⚽ Groups" },
+  { id: "bracket", label: "🗓 Bracket" },
 ];
 
 export default function App() {
@@ -19,44 +19,44 @@ export default function App() {
   const statusFetcher = useCallback(() => api.getStatus(), []);
   const { data: status } = usePolling(statusFetcher, 10_000);
 
+  const getPageTitle = () => {
+    switch (page) {
+      case "odds": return "CHAMPIONSHIP ODDS";
+      case "matches": return "MATCHES & FORECASTS";
+      case "groups": return "STANDINGS & GROUPS";
+      case "bracket": return "KNOCKOUT BRACKET";
+      default: return "WORLD CUP FORECAST";
+    }
+  };
+
+  const getPageSubtitle = () => {
+    switch (page) {
+      case "odds": return "Monte Carlo simulation · 10,000 runs · updates after every result";
+      case "groups": return "Live standings · simulated team progression probabilities";
+      case "matches": return "Match predictions · Live and upcoming fixture probabilities";
+      case "bracket": return "Simulated knockout tree progression and match outcomes";
+      default: return "";
+    }
+  };
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0d1117",
-      color: "#fff",
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
+    <div style={{ minHeight: "100vh" }}>
       {/* Header */}
-      <header style={{
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-        padding: "0 24px",
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        height: "60px",
-        position: "sticky", top: 0,
-        background: "rgba(13,17,23,0.95)",
-        backdropFilter: "blur(12px)",
-        zIndex: 100,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "22px", letterSpacing: "3px",
-            color: "#e8b84b",
-          }}>
+      <header className="app-header">
+        <div className="header-left">
+          <div className="logo-text">
             WC 2026 FORECAST
           </div>
 
-          <nav style={{ display: "flex", gap: "4px" }}>
+          <nav className="app-nav">
             {NAV.map(n => (
-              <button key={n.id} onClick={() => setPage(n.id)} style={{
-                background: page === n.id ? "rgba(232,184,75,0.15)" : "transparent",
-                border: page === n.id ? "1px solid rgba(232,184,75,0.3)" : "1px solid transparent",
-                borderRadius: "6px", padding: "6px 14px",
-                color: page === n.id ? "#e8b84b" : "rgba(255,255,255,0.5)",
-                fontSize: "13px", cursor: "pointer",
-                transition: "all 0.15s",
-              }}>{n.label}</button>
+              <button
+                key={n.id}
+                onClick={() => setPage(n.id)}
+                className={`nav-button ${page === n.id ? 'active' : ''}`}
+              >
+                {n.label}
+              </button>
             ))}
           </nav>
         </div>
@@ -78,42 +78,28 @@ export default function App() {
       </header>
 
       {/* Page title */}
-      <div style={{
-        padding: "28px 24px 12px",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "32px", letterSpacing: "3px",
-          color: "#fff",
-        }}>
-          {page === "odds" ? "CHAMPIONSHIP ODDS" : "GROUP STAGE"}
+      <div className="page-header-container">
+        <h1 className="page-title">
+          {getPageTitle()}
         </h1>
-        <p style={{ margin: "4px 0 0", fontSize: "13px", color: "rgba(255,255,255,0.35)" }}>
-          {page === "odds"
-            ? "Monte Carlo simulation · 10,000 runs · updates after every result"
-            : "Live standings · submit results to update probabilities"}
+        <p className="page-subtitle">
+          {getPageSubtitle()}
         </p>
       </div>
 
       {/* Content */}
-      <main style={{ padding: "24px" }}>
+      <main className="app-main">
         {page === "odds"   && <Odds />}
         {page === "groups" && <Groups />}
         {page === "matches" && <Matches />}
+        {page === "bracket" && <Bracket />}
       </main>
 
       {/* Footer */}
-      <footer style={{
-        borderTop: "1px solid rgba(255,255,255,0.05)",
-        padding: "16px 24px",
-        fontSize: "11px", color: "rgba(255,255,255,0.2)",
-        display: "flex", justifyContent: "space-between",
-      }}>
+      <footer className="app-footer">
         <span>WC 2026 Forecast · LightGBM + Monte Carlo</span>
         <span>Probabilities update after each match result</span>
       </footer>
     </div>
   );
-}
+}

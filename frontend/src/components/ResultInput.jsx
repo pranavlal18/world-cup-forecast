@@ -68,17 +68,13 @@ export function ResultInput({ onSuccess }) {
   };
 
   return (
-    <div style={{
-      background: "rgba(255,255,255,0.04)",
-      border: "1px solid rgba(255,255,255,0.08)",
-      borderRadius: "12px", padding: "20px",
-    }}>
+    <div className="result-input-container">
       <h3 style={{
         margin: "0 0 16px", fontFamily: "'Bebas Neue', sans-serif",
         letterSpacing: "2px", color: "#e8b84b", fontSize: "16px",
       }}>POST RESULT</h3>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 60px 1fr", gap: "8px", alignItems: "end", marginBottom: "10px" }}>
+      <div className="result-input-grid">
         <div>
           <label style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", display: "block", marginBottom: "4px" }}>HOME</label>
           <select style={inp} value={form.home_team} onChange={e => set("home_team", e.target.value)}>
@@ -86,7 +82,7 @@ export function ResultInput({ onSuccess }) {
             {ALL_TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "center" }} className="result-input-score-col">
           <label style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", display: "block", marginBottom: "4px" }}>SCORE</label>
           <div style={{ display: "flex", gap: "4px" }}>
             <input type="number" min="0" max="20" style={{ ...inp, textAlign: "center", padding: "8px 4px" }}
