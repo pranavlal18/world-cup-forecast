@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import { useState, useCallback } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Odds } from "./pages/Odds.jsx";
 import { Groups } from "./pages/Groups.jsx";
 import { Matches } from "./pages/Matches.jsx";
@@ -103,6 +104,7 @@ export default function App() {
       </footer>
 
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
