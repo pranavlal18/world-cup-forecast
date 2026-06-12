@@ -1,44 +1,64 @@
 from fastapi import APIRouter, HTTPException
-from pathlib import Path
-import json
 from collections import defaultdict
 
 router = APIRouter()
 
-STANDINGS_PATH = Path("data/pipeline/group_standings.json")
-PIPELINE_JSON  = Path("data/pipeline/champion_probabilities.json")
+def _get_standings_from_db():
+    from backend.database import get_db
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT team, group_letter, played, won, drawn, lost,
+                   gf, ga, gd, points
+            FROM group_standings
+            ORDER BY group_letter, points DESC, gd DESC, gf DESC
+        """)
+        rows = cur.fetchall()
+    if not rows:
+        return None
+    groups = defaultdict(list)
+    for row in rows:
+        team, g, played, won, drawn, lost, gf, ga, gd, points = row
+        groups[g].append({
+            "team": team, "played": played, "won": won,
+            "drawn": drawn, "lost": lost, "gf": gf,
+            "ga": ga, "gd": gd, "points": points,
+        })
+    return [
+        {"group": g, "standings": teams}
+        for g, teams in sorted(groups.items())
+    ]
+
+def _get_standings_from_json():
+    from pathlib import Path
+    import json
+    PIPELINE_JSON = Path("data/pipeline/champion_probabilities.json")
+    if not PIPELINE_JSON.exists():
+        return None
+    with open(PIPELINE_JSON) as f:
+        data = json.load(f)
+    groups = defaultdict(list)
+    for team in data.get("teams", []):
+        groups[team["group"]].append({
+            "team": team["team"],
+            "played": 0, "won": 0, "drawn": 0, "lost": 0,
+            "gf": 0, "ga": 0, "gd": 0, "points": 0,
+        })
+    return [
+        {"group": g, "standings": teams}
+        for g, teams in sorted(groups.items())
+    ]
 
 def _get_standings():
-    # Use real standings if available
-    if STANDINGS_PATH.exists():
-        with open(STANDINGS_PATH) as f:
-            standings = json.load(f)
-        result = []
-        for group_letter, teams in sorted(standings.items()):
-            sorted_teams = sorted(
-                teams.values(),
-                key=lambda t: (t["points"], t["gd"], t["gf"]),
-                reverse=True,
-            )
-            result.append({"group": group_letter, "standings": sorted_teams})
+    try:
+        db = _get_standings_from_db()
+        if db:
+            return db
+    except Exception as e:
+        print(f"⚠ DB standings failed: {e} — falling back to JSON")
+    result = _get_standings_from_json()
+    if result:
         return result
-
-    # Fall back to pipeline JSON (pre-tournament)
-    if PIPELINE_JSON.exists():
-        with open(PIPELINE_JSON) as f:
-            data = json.load(f)
-        groups = defaultdict(list)
-        for team in data.get("teams", []):
-            groups[team["group"]].append({
-                "team":    team["team"],
-                "played":  0, "won": 0, "drawn": 0, "lost": 0,
-                "gf":      0, "ga":  0, "gd":    0, "points": 0,
-            })
-        return [
-            {"group": g, "standings": teams}
-            for g, teams in sorted(groups.items())
-        ]
-
     raise HTTPException(status_code=503, detail="Standings not available yet")
 
 @router.get("/")

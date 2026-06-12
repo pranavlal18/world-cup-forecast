@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-10T13:54:35.147168+00:00",
+  "fetched_at": "2026-06-12T04:51:53.352169+00:00",
   "fixtures": [
     {
       "match_id": 537327,
@@ -11,7 +11,7 @@
       "team1": "Mexico",
       "team2": "South Africa",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537328,
@@ -23,7 +23,7 @@
       "team1": "South Korea",
       "team2": "Czechia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537333,
@@ -131,7 +131,7 @@
       "team1": "Ivory Coast",
       "team2": "Ecuador",
       "venue": "",
-      "status": "SCHEDULED"
+      "status": "TIMED"
     },
     {
       "match_id": 537358,

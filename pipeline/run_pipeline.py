@@ -34,7 +34,7 @@ PROBS_PATH    = ROOT / "data/raw/future_match_probabilities_baseline.csv"
 OUTPUT_JSON   = ROOT / "data/pipeline/champion_probabilities.json"
 OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 
-N_SIMULATIONS     = 5_000
+N_SIMULATIONS     = 10000
 TOURNAMENT_WEIGHT = 5
 WORLD_CUP_AVG_ELO = 1750
 
@@ -229,7 +229,7 @@ def run_pipeline(force_simulate=False):
                     r["home_score"], r["away_score"]
                 )
 
-    if new_results or force_simulate:
+    if new_results:
         current_ratings = update_elo()
     else:
         current_ratings = load_ratings()

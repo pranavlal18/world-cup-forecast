@@ -1,5 +1,5 @@
 """
-pipeline/02_update_elo.py
+pipeline/update_elo.py
 ════════════════════════════════════════════════════════════════════════
 Reads new_results.csv, updates Elo ratings for each team,
 writes current_ratings.csv.
@@ -17,61 +17,62 @@ from pathlib import Path
 from datetime import datetime
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-NEW_RESULTS_PATH  = Path("data/pipeline/new_results.csv")
-RATINGS_PATH      = Path("data/pipeline/current_ratings.csv")
+ROOT = Path(__file__).parent.parent
+NEW_RESULTS_PATH  = ROOT / "data/pipeline/new_results.csv"
+RATINGS_PATH      = ROOT / "data/pipeline/current_ratings.csv"
 RATINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 K_FACTOR = 60   # FIFA World Cup weight
 
-# ── Initial Elo ratings (from your simulation) ────────────────────────────────
+# ── Initial Elo ratings (updated from latest eloratings.net data) ────────────
 INITIAL_ELOS = {
-    "Mexico":                 1890,
+    "Mexico":                 1875,
     "South Africa":           1600,
-    "South Korea":            1755,
+    "South Korea":            1758,
     "Czechia":                1740,
-    "Canada":                 1750,
+    "Canada":                 1788,
     "Bosnia and Herzegovina": 1591,
     "Qatar":                  1500,
-    "Switzerland":            1850,
-    "Brazil":                 2100,
+    "Switzerland":            1894,
+    "Brazil":                 1988,
     "Morocco":                1820,
-    "Haiti":                  1400,
-    "Scotland":               1705,
-    "United States":          1880,
-    "Paraguay":               1680,
-    "Australia":              1720,
+    "Haiti":                  1548,
+    "Scotland":               1770,
+    "United States":          1733,
+    "Paraguay":               1833,
+    "Australia":              1774,
     "Turkey":                 1906,
-    "Germany":                2040,
-    "Curaçao":                1550,
-    "Ivory Coast":            1676,
-    "Ecuador":                1780,
-    "Netherlands":            1970,
-    "Japan":                  1860,
+    "Germany":                1925,
+    "Curaçao":                1433,
+    "Ivory Coast":            1695,
+    "Ecuador":                1935,
+    "Netherlands":            1944,
+    "Japan":                  1906,
     "Sweden":                 1712,
-    "Tunisia":                1670,
-    "Belgium":                1885,
-    "Egypt":                  1700,
-    "Iran":                   1650,
-    "New Zealand":            1580,
-    "Spain":                  2000,
-    "Cape Verde":             1520,
-    "Saudi Arabia":           1700,
-    "Uruguay":                1870,
-    "France":                 2045,
-    "Senegal":                1830,
+    "Tunisia":                1628,
+    "Belgium":                1888,
+    "Egypt":                  1699,
+    "Iran":                   1772,
+    "New Zealand":            1563,
+    "Spain":                  2155,
+    "Cape Verde":             1576,
+    "Saudi Arabia":           1569,
+    "Uruguay":                1892,
+    "France":                 2062,
+    "Senegal":                1867,
     "Iraq":                   1618,
-    "Norway":                 1715,
-    "Argentina":              2060,
-    "Algeria":                1655,
-    "Austria":                1800,
-    "Jordan":                 1480,
-    "Portugal":               1975,
+    "Norway":                 1917,
+    "Argentina":              2113,
+    "Algeria":                1760,
+    "Austria":                1830,
+    "Jordan":                 1685,
+    "Portugal":               1984,
     "DR Congo":               1661,
-    "Uzbekistan":             1505,
-    "Colombia":               1790,
-    "England":                2005,
-    "Croatia":                1855,
-    "Ghana":                  1600,
+    "Uzbekistan":             1718,
+    "Colombia":               1977,
+    "England":                2020,
+    "Croatia":                1908,
+    "Ghana":                  1510,
     "Panama":                 1734,
 }
 
@@ -114,12 +115,12 @@ def update_elo(ra: float, rb: float, score_a: float) -> tuple[float, float]:
 def run():
     if not NEW_RESULTS_PATH.exists() or NEW_RESULTS_PATH.stat().st_size == 0:
         print("  No new results to process.")
-        return {}
+        return load_ratings()
 
     results = pd.read_csv(NEW_RESULTS_PATH)
     if results.empty:
         print("  new_results.csv is empty.")
-        return {}
+        return load_ratings()
 
     ratings = load_ratings()
     updated_teams = {}
@@ -138,7 +139,6 @@ def run():
         ra = ratings[home]
         rb = ratings[away]
 
-        # Determine outcome
         if hs > as_:   score = 1.0
         elif hs < as_: score = 0.0
         else:          score = 0.5
@@ -155,8 +155,12 @@ def run():
         updated_teams[away] = new_rb
 
     save_ratings(ratings)
-    return ratings
 
+    # Clear new_results.csv so these matches can never be re-applied
+    NEW_RESULTS_PATH.unlink()
+    print(f"  Cleared {NEW_RESULTS_PATH}")
+
+    return ratings
 
 if __name__ == "__main__":
     run()
