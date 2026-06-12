@@ -1,5 +1,7 @@
 // frontend/src/App.jsx
 import { useState, useCallback } from "react";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Odds } from "./pages/Odds.jsx";
 import { Groups } from "./pages/Groups.jsx";
 import { Matches } from "./pages/Matches.jsx";
@@ -100,6 +102,9 @@ export default function App() {
         <span>WC 2026 Forecast · LightGBM + Monte Carlo</span>
         <span>Probabilities update after each match result</span>
       </footer>
+
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
