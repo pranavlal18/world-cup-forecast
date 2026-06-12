@@ -1,6 +1,12 @@
 """
 pipeline/run_pipeline.py
-Master pipeline runner.
+════════════════════════════════════════════════════════════════════════
+Master pipeline runner. Orchestrates:
+  1. Fetch new results from football-data.org API
+  2. Update Elo ratings
+  3. Re-run Monte Carlo simulation (parallel), locking in real results
+  4. Write champion_probabilities.json for React UI
+════════════════════════════════════════════════════════════════════════
 """
 
 import sys, os, json, pickle
@@ -32,9 +38,10 @@ MODEL_PATH    = ROOT / "data/processed/lgbm_model_v2.pkl"
 FEATURES_PATH = ROOT / "data/processed/features_with_form.csv"
 PROBS_PATH    = ROOT / "data/raw/future_match_probabilities_baseline.csv"
 OUTPUT_JSON   = ROOT / "data/pipeline/champion_probabilities.json"
+COMPLETED_RESULTS_PATH = ROOT / "data/pipeline/completed_results.json"
 OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 
-N_SIMULATIONS     = 10000
+N_SIMULATIONS     = 10_000
 TOURNAMENT_WEIGHT = 5
 WORLD_CUP_AVG_ELO = 1750
 
@@ -72,15 +79,65 @@ PLAYOFF_MAP = {
     "Cape_Verde":"Cape Verde","Côte d'Ivoire":"Ivory Coast",
 }
 
-_team_stats_g = _model_g = _features_g = _match_probs_g = None
+_team_stats_g = _model_g = _features_g = _match_probs_g = _completed_g = None
 
-def _init_worker(team_stats, model, features, match_probs):
-    global _team_stats_g, _model_g, _features_g, _match_probs_g
+def _init_worker(team_stats, model, features, match_probs, completed_results):
+    global _team_stats_g, _model_g, _features_g, _match_probs_g, _completed_g
     _team_stats_g = team_stats; _model_g = model
     _features_g = features; _match_probs_g = match_probs
+    _completed_g = completed_results
 
 def _sim_worker(_):
-    return run_simulation(_team_stats_g, _model_g, _features_g, _match_probs_g)
+    return run_simulation(_team_stats_g, _model_g, _features_g, _match_probs_g, _completed_g)
+
+
+# ── Completed results persistence ─────────────────────────────────────────────
+
+def _load_completed_results() -> dict:
+    """
+    Returns dict keyed by (home_team, away_team) -> (home_score, away_score)
+    for every Group Stage match that has actually been played.
+    """
+    if not COMPLETED_RESULTS_PATH.exists():
+        return {}
+    with open(COMPLETED_RESULTS_PATH) as f:
+        data = json.load(f)
+    results = {}
+    for r in data:
+        results[(r["home_team"], r["away_team"])] = (r["home_score"], r["away_score"])
+    return results
+
+
+def _append_completed_results(new_results: list[dict]):
+    """
+    Appends newly-finished matches to completed_results.json so future
+    simulations lock in their real outcome instead of re-simulating.
+    """
+    existing = []
+    if COMPLETED_RESULTS_PATH.exists():
+        with open(COMPLETED_RESULTS_PATH) as f:
+            existing = json.load(f)
+
+    existing_keys = {(r["home_team"], r["away_team"]) for r in existing}
+
+    for r in new_results:
+        key = (r["home_team"], r["away_team"])
+        if key not in existing_keys:
+            existing.append({
+                "home_team":  r["home_team"],
+                "away_team":  r["away_team"],
+                "home_score": r["home_score"],
+                "away_score": r["away_score"],
+                "stage":      r["stage"],
+            })
+            existing_keys.add(key)
+
+    COMPLETED_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(COMPLETED_RESULTS_PATH, "w") as f:
+        json.dump(existing, f, indent=2)
+
+    print(f"  Saved {len(existing)} completed match result(s) → {COMPLETED_RESULTS_PATH}")
+
 
 def get_team_stats(df, team, current_elo=None):
     csv_name  = NAME_MAP.get(team, team)
@@ -144,21 +201,34 @@ def sim_match(ph, pd_, pa):
     elif r < ph+pd_: return "draw"
     else: return "away"
 
-def sim_group(teams, team_stats, model, features, match_probs):
+def sim_group(teams, team_stats, model, features, match_probs, completed_results=None):
+    """
+    Simulates a group's round-robin. Matches that have already been played
+    (present in completed_results) use the real final score instead of
+    being re-simulated.
+    """
+    completed_results = completed_results or {}
     s = {t:{"pts":0,"gd":0,"gf":0} for t in teams}
     for home,away in combinations(teams,2):
-        ph,pd_,pa = predict(model,features,team_stats[home],team_stats[away],match_probs,home,away)
-        outcome = sim_match(ph,pd_,pa)
-        lh = max(0.3, team_stats[home]["goals_scored5"]*(1+(team_stats[home]["elo"]-team_stats[away]["elo"])/1000))
-        la = max(0.3, team_stats[away]["goals_scored5"]*(1+(team_stats[away]["elo"]-team_stats[home]["elo"])/1000))
-        gh,ga = np.random.poisson(lh),np.random.poisson(la)
-        if outcome=="home" and gh<=ga: gh,ga=ga+1,max(0,ga-1)
-        elif outcome=="away" and ga<=gh: ga,gh=gh+1,max(0,gh-1)
-        elif outcome=="draw": ga=gh
+        if (home,away) in completed_results:
+            gh, ga = completed_results[(home,away)]
+        elif (away,home) in completed_results:
+            # stored with reversed home/away — flip scores back
+            ga, gh = completed_results[(away,home)]
+        else:
+            ph,pd_,pa = predict(model,features,team_stats[home],team_stats[away],match_probs,home,away)
+            outcome = sim_match(ph,pd_,pa)
+            lh = max(0.3, team_stats[home]["goals_scored5"]*(1+(team_stats[home]["elo"]-team_stats[away]["elo"])/1000))
+            la = max(0.3, team_stats[away]["goals_scored5"]*(1+(team_stats[away]["elo"]-team_stats[home]["elo"])/1000))
+            gh,ga = np.random.poisson(lh),np.random.poisson(la)
+            if outcome=="home" and gh<=ga: gh,ga=ga+1,max(0,ga-1)
+            elif outcome=="away" and ga<=gh: ga,gh=gh+1,max(0,gh-1)
+            elif outcome=="draw": ga=gh
+
         s[home]["gf"]+=gh; s[home]["gd"]+=gh-ga
         s[away]["gf"]+=ga; s[away]["gd"]+=ga-gh
-        if outcome=="home": s[home]["pts"]+=3
-        elif outcome=="away": s[away]["pts"]+=3
+        if gh>ga: s[home]["pts"]+=3
+        elif ga>gh: s[away]["pts"]+=3
         else: s[home]["pts"]+=1; s[away]["pts"]+=1
     return s
 
@@ -170,11 +240,12 @@ def ko_match(a, b, team_stats, model, features):
     ph,pd_,pa = predict(model,features,hs,as_)
     return a if np.random.random() < ph+pd_*0.5 else b
 
-def run_simulation(team_stats, model, features, match_probs):
+def run_simulation(team_stats, model, features, match_probs, completed_results=None):
+    completed_results = completed_results or {}
     results = {t:"Group Stage" for g in GROUPS.values() for t in g}
     winners,thirds = {},[]
     for gname,teams in GROUPS.items():
-        s = sim_group(teams,team_stats,model,features,match_probs)
+        s = sim_group(teams,team_stats,model,features,match_probs,completed_results)
         ranked = rank_group(s)
         winners[gname] = ranked[0]
         thirds.append({"team":ranked[2],"pts":s[ranked[2]]["pts"],"gd":s[ranked[2]]["gd"],"gf":s[ranked[2]]["gf"]})
@@ -182,7 +253,7 @@ def run_simulation(team_stats, model, features, match_probs):
     third_sorted = sorted(thirds,key=lambda x:(x["pts"],x["gd"],x["gf"],np.random.random()),reverse=True)
     for t in third_sorted[:8]: results[t["team"]]="Round of 32"
     r32=[]; gkeys=list(GROUPS.keys())
-    runners={gname:rank_group(sim_group(GROUPS[gname],team_stats,model,features,match_probs))[1] for gname in gkeys}
+    runners={gname:rank_group(sim_group(GROUPS[gname],team_stats,model,features,match_probs,completed_results))[1] for gname in gkeys}
     for i in range(0,len(gkeys),2):
         g1,g2=gkeys[i],gkeys[i+1]
         r32.append((winners[g1],runners[g2])); r32.append((winners[g2],runners[g1]))
@@ -215,6 +286,10 @@ def run_pipeline(force_simulate=False):
     new_results = fetch_completed_matches()
 
     if new_results:
+        # Lock in real scores for the simulation BEFORE update_elo() clears
+        # new_results.csv
+        _append_completed_results(new_results)
+
         fixtures = load_fixtures_cache()
         for r in new_results:
             if r["stage"] == "Group Stage":
@@ -250,6 +325,13 @@ def run_pipeline(force_simulate=False):
         away=PLAYOFF_MAP.get(row["away_team"],row["away_team"])
         match_probs[(home,away)]=(row["p_home_win"],row["p_draw"],row["p_away_win"])
 
+    # Load all completed group-stage results (including from earlier runs)
+    completed_results = _load_completed_results()
+    if completed_results:
+        print(f"  {len(completed_results)} completed match(es) locked into simulation:")
+        for (h,a),(hs,as_) in completed_results.items():
+            print(f"    {h} {hs}-{as_} {a}")
+
     all_teams=[t for g in GROUPS.values() for t in g]
     team_stats={}
     for team in all_teams:
@@ -257,12 +339,12 @@ def run_pipeline(force_simulate=False):
         team_stats[team]=adjust_stats(stats)
 
     np.random.seed(None)
-    n_workers = int(os.getenv("N_WORKERS", max(1, (os.cpu_count() or 2) - 1)))
+    n_workers = int(os.getenv("N_WORKERS", os.cpu_count() or 2))
     print(f"  Running {N_SIMULATIONS:,} simulations on {n_workers} cores...")
     counts={t:{r:0 for r in ROUND_ORDER} for t in all_teams}
 
     with Pool(processes=n_workers,initializer=_init_worker,
-              initargs=(team_stats,model,features,match_probs)) as pool:
+              initargs=(team_stats,model,features,match_probs,completed_results)) as pool:
         for i,sim in enumerate(pool.imap_unordered(_sim_worker,range(N_SIMULATIONS)),1):
             for team,furthest in sim.items():
                 idx=ROUND_ORDER.index(furthest)
