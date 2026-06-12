@@ -4,10 +4,7 @@ import { usePolling } from "../hooks/usePolling.js";
 import { api } from "../utils/api.js";
 import { TeamFlag } from "../components/TeamFlag.jsx";
 
-const STAGES = [
-  "Round of 32", "Round of 16",
-  "Quarter-Final", "Semi-Final", "Final"
-];
+const STAGES = ["Round of 32", "Round of 16", "Quarter-final", "Semi-final", "Final"];
 
 function MatchCard({ match }) {
   const finished = match.winner != null;
