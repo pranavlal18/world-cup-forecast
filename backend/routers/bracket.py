@@ -1,22 +1,32 @@
 # backend/routers/bracket.py
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pathlib import Path
+import importlib.util
 import json
 
 router = APIRouter()
-FIXTURES_CACHE = Path("data/cache/fixtures.json")
-RESULTS_PATH   = Path("data/pipeline/match_results.json")
-PROBS_PATH     = Path("data/pipeline/champion_probabilities.json")
+
+ROOT = Path(__file__).parent.parent.parent
+PROBS_PATH = ROOT / "data/pipeline/champion_probabilities.json"
+
+
+def _load_wc_fixtures():
+    spec = importlib.util.spec_from_file_location(
+        "wc2026_fixtures", ROOT / "pipeline/wc2026_fixtures.py"
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.FIXTURES
+
 
 @router.get("/")
 def get_bracket():
-    with open(FIXTURES_CACHE) as f:
-        fixtures = json.load(f)["fixtures"]
+    try:
+        from pipeline.knockout_tracker import get_bracket as resolve_bracket
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Bracket module unavailable: {e}")
 
-    results = {}
-    if RESULTS_PATH.exists():
-        with open(RESULTS_PATH) as f:
-            results = json.load(f)
+    fixtures = _load_wc_fixtures()
 
     probs = {}
     if PROBS_PATH.exists():
@@ -24,30 +34,34 @@ def get_bracket():
             data = json.load(f)
             probs = {t["team"]: t["champion"] for t in data["teams"]}
 
+    try:
+        resolved = resolve_bracket(fixtures)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Could not resolve bracket: {e}")
+
     knockout_stages = [
         "Round of 32", "Round of 16",
-        "Quarter-Final", "Semi-Final", "Final"
+        "Quarter-final", "Semi-final",
+        "Third-place play-off", "Final",
     ]
 
-    bracket = {}
-    for stage in knockout_stages:
-        stage_fixtures = [f for f in fixtures if f["stage"] == stage]
-        matches = []
-        for f in stage_fixtures:
-            match_result = results.get(str(f["match_id"]), {})
-            matches.append({
-                "match_id":       f["match_id"],
-                "date":           f["date"],
-                "time":           f["time"],
-                "team1":          f["team1"],
-                "team2":          f["team2"],
-                "score1":         match_result.get("home_score"),
-                "score2":         match_result.get("away_score"),
-                "winner":         match_result.get("winner"),
-                "status":         f["status"],
-                "team1_champion": probs.get(f["team1"]),
-                "team2_champion": probs.get(f["team2"]),
-            })
-        bracket[stage] = matches
+    bracket = {stage: [] for stage in knockout_stages}
+
+    for f in resolved:
+        result = f.get("result") or {}
+        bracket.setdefault(f["stage"], []).append({
+            "match_no":       f["match_no"],
+            "date":           f["date"],
+            "time":           f["time"],
+            "team1":          f["team1"],
+            "team2":          f["team2"],
+            "score1":         result.get("home_score"),
+            "score2":         result.get("away_score"),
+            "winner":         result.get("winner"),
+            "is_played":      f["is_played"],
+            "both_teams_known": f["both_teams_known"],
+            "team1_champion": probs.get(f["team1"]),
+            "team2_champion": probs.get(f["team2"]),
+        })
 
     return bracket

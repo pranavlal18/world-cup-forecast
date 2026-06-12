@@ -29,6 +29,15 @@ def load_module(path, name):
     mod  = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+_WC_FIXTURES_CACHE = None
+
+def _get_wc_fixtures():
+    """Lazily load wc2026_fixtures.py's FIXTURES list (cached)."""
+    global _WC_FIXTURES_CACHE
+    if _WC_FIXTURES_CACHE is None:
+        mod = load_module(ROOT / "pipeline/wc2026_fixtures.py", "wc2026_fixtures")
+        _WC_FIXTURES_CACHE = mod.FIXTURES
+    return _WC_FIXTURES_CACHE
 
 elo_mod      = load_module(ROOT / "pipeline/update_elo.py", "update_elo")
 update_elo   = elo_mod.run
@@ -286,8 +295,6 @@ def run_pipeline(force_simulate=False):
     new_results = fetch_completed_matches()
 
     if new_results:
-        # Lock in real scores for the simulation BEFORE update_elo() clears
-        # new_results.csv
         _append_completed_results(new_results)
 
         fixtures = load_fixtures_cache()
@@ -303,7 +310,35 @@ def run_pipeline(force_simulate=False):
                     match_no, r["home_team"], r["away_team"],
                     r["home_score"], r["away_score"]
                 )
+            else:
+                # Knockout stage — find the wc2026_fixtures.py match_no by
+                # resolving each knockout fixture's placeholders and matching
+                # team names against the real result from the API.
+                from pipeline.knockout_tracker import save_result, resolve_fixture, load_results
+                from pipeline.group_tracker import load_standings
 
+                wc_fixtures = elo_mod and _get_wc_fixtures()  # see helper below
+                results   = load_results()
+                standings = load_standings()
+
+                match_no_found = None
+                for f in wc_fixtures:
+                    if f["stage"] == "Group Stage" or f.get("group"):
+                        continue
+                    resolved = resolve_fixture(f, results, standings)
+                    if (resolved["team1"] == r["home_team"] and resolved["team2"] == r["away_team"]) or \
+                       (resolved["team1"] == r["away_team"] and resolved["team2"] == r["home_team"]):
+                        match_no_found = f["match_no"]
+                        break
+
+                if match_no_found is None:
+                    print(f"  ⚠ Could not match knockout result {r['home_team']} vs "
+                          f"{r['away_team']} to a fixture — skipping bracket update")
+                else:
+                    save_result(
+                        match_no_found, r["home_team"], r["away_team"],
+                        r["home_score"], r["away_score"], r["stage"]
+                    )
     if new_results:
         current_ratings = update_elo()
     else:
@@ -319,11 +354,13 @@ def run_pipeline(force_simulate=False):
 
     df=pd.read_csv(FEATURES_PATH); df["date"]=pd.to_datetime(df["date"])
 
-    baseline_df=pd.read_csv(PROBS_PATH); match_probs={}
-    for _,row in baseline_df.iterrows():
-        home=PLAYOFF_MAP.get(row["home_team"],row["home_team"])
-        away=PLAYOFF_MAP.get(row["away_team"],row["away_team"])
-        match_probs[(home,away)]=(row["p_home_win"],row["p_draw"],row["p_away_win"])
+    # NOTE: baseline_df / match_probs is pre-tournament group-stage data only.
+    # Once the tournament starts, group match outcomes must be predicted from
+    # LIVE Elo (via build_features), not these frozen pre-tournament numbers.
+    # We keep loading it for reference/logging, but pass an empty dict to the
+    # simulator so predict() always falls through to build_features().
+    baseline_df=pd.read_csv(PROBS_PATH)
+    match_probs = {}   # ← intentionally empty; live Elo drives all predictions now
 
     # Load all completed group-stage results (including from earlier runs)
     completed_results = _load_completed_results()
