@@ -50,7 +50,7 @@ OUTPUT_JSON   = ROOT / "data/pipeline/champion_probabilities.json"
 COMPLETED_RESULTS_PATH = ROOT / "data/pipeline/completed_results.json"
 OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 
-N_SIMULATIONS     = 10_000
+N_SIMULATIONS     = 5_000
 TOURNAMENT_WEIGHT = 5
 WORLD_CUP_AVG_ELO = 1750
 
@@ -89,15 +89,18 @@ PLAYOFF_MAP = {
 }
 
 _team_stats_g = _model_g = _features_g = _match_probs_g = _completed_g = None
+_ko_lookup_g = _elimination_cap_g = None
 
-def _init_worker(team_stats, model, features, match_probs, completed_results):
+def _init_worker(team_stats, model, features, match_probs, completed_results, ko_lookup, elimination_cap):
     global _team_stats_g, _model_g, _features_g, _match_probs_g, _completed_g
+    global _ko_lookup_g, _elimination_cap_g
     _team_stats_g = team_stats; _model_g = model
     _features_g = features; _match_probs_g = match_probs
     _completed_g = completed_results
+    _ko_lookup_g = ko_lookup; _elimination_cap_g = elimination_cap
 
 def _sim_worker(_):
-    return run_simulation(_team_stats_g, _model_g, _features_g, _match_probs_g, _completed_g)
+    return run_simulation(_team_stats_g, _model_g, _features_g, _match_probs_g, _completed_g, _ko_lookup_g, _elimination_cap_g)
 
 
 # ── Completed results persistence ─────────────────────────────────────────────
@@ -249,8 +252,10 @@ def ko_match(a, b, team_stats, model, features):
     ph,pd_,pa = predict(model,features,hs,as_)
     return a if np.random.random() < ph+pd_*0.5 else b
 
-def run_simulation(team_stats, model, features, match_probs, completed_results=None):
+def run_simulation(team_stats, model, features, match_probs, completed_results=None, ko_lookup=None, elimination_cap=None):
     completed_results = completed_results or {}
+    ko_lookup = ko_lookup or {}
+    elimination_cap = elimination_cap or {}
     results = {t:"Group Stage" for g in GROUPS.values() for t in g}
     winners,thirds = {},[]
     for gname,teams in GROUPS.items():
@@ -272,7 +277,11 @@ def run_simulation(team_stats, model, features, match_probs, completed_results=N
     def play(matchups,rname):
         w=[]
         for a,b in matchups:
-            winner=ko_match(a,b,team_stats,model,features)
+            teams=frozenset([a,b])
+            if teams in ko_lookup:
+                winner=ko_lookup[teams]
+            else:
+                winner=ko_match(a,b,team_stats,model,features)
             results[winner]=rname; w.append(winner)
         return w
     r16=play(r32,"Round of 16")
@@ -280,7 +289,19 @@ def run_simulation(team_stats, model, features, match_probs, completed_results=N
     sf=play([(qf[i],qf[i+1])   for i in range(0,len(qf),2)], "Semi-Final")
     fn=play([(sf[i],sf[i+1])   for i in range(0,len(sf),2)], "Final")
     if len(fn)>=2:
-        champ=ko_match(fn[0],fn[1],team_stats,model,features); results[champ]="Champion"
+        fset=frozenset(fn)
+        if fset in ko_lookup:
+            champ=ko_lookup[fset]
+        else:
+            champ=ko_match(fn[0],fn[1],team_stats,model,features)
+        results[champ]="Champion"
+    for team in results:
+        if team in elimination_cap:
+            cap_round=elimination_cap[team]
+            cap_idx=ROUND_ORDER.index(cap_round)
+            actual_idx=ROUND_ORDER.index(results[team])
+            if actual_idx>cap_idx:
+                results[team]=cap_round
     return results
 
 def run_pipeline(force_simulate=False):
@@ -369,6 +390,23 @@ def run_pipeline(force_simulate=False):
         for (h,a),(hs,as_) in completed_results.items():
             print(f"    {h} {hs}-{as_} {a}")
 
+    # Load knockout results to lock in real outcomes
+    from pipeline.knockout_tracker import load_results as load_ko_results
+    ko_data = load_ko_results()
+    ko_lookup = {}
+    elimination_cap = {}
+    for mno, r in ko_data.items():
+        teams = frozenset([r["home"], r["away"]])
+        ko_lookup[teams] = r["winner"]
+        loser = r["loser"]
+        stage = r["stage"]
+        if loser not in elimination_cap:
+            elimination_cap[loser] = stage
+    if ko_lookup:
+        print(f"  {len(ko_lookup)} knockout result(s) locked into simulation. Capped teams:")
+        for t, s in sorted(elimination_cap.items()):
+            print(f"    {t} — eliminated at {s}")
+
     all_teams=[t for g in GROUPS.values() for t in g]
     team_stats={}
     for team in all_teams:
@@ -376,12 +414,12 @@ def run_pipeline(force_simulate=False):
         team_stats[team]=adjust_stats(stats)
 
     np.random.seed(None)
-    n_workers = int(os.getenv("N_WORKERS", os.cpu_count() or 2))
+    n_workers = int(os.getenv("N_WORKERS", max(1, (os.cpu_count() or 2) - 1)))
     print(f"  Running {N_SIMULATIONS:,} simulations on {n_workers} cores...")
     counts={t:{r:0 for r in ROUND_ORDER} for t in all_teams}
 
     with Pool(processes=n_workers,initializer=_init_worker,
-              initargs=(team_stats,model,features,match_probs,completed_results)) as pool:
+              initargs=(team_stats,model,features,match_probs,completed_results,ko_lookup,elimination_cap)) as pool:
         for i,sim in enumerate(pool.imap_unordered(_sim_worker,range(N_SIMULATIONS)),1):
             for team,furthest in sim.items():
                 idx=ROUND_ORDER.index(furthest)

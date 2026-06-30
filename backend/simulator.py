@@ -16,24 +16,28 @@ from backend.config import GROUPS
 
 
 # ── Module-level globals for multiprocessing worker ───────────────────────────
-_team_stats  = None
-_model       = None
-_features    = None
-_match_probs = None
+_team_stats    = None
+_model         = None
+_features      = None
+_match_probs   = None
+_ko_lookup     = None
+_elim_cap      = None
 
 
-def _pool_initializer(team_stats, model, features, match_probs):
-    global _team_stats, _model, _features, _match_probs
-    _team_stats  = team_stats
-    _model       = model
-    _features    = features
-    _match_probs = match_probs
+def _pool_initializer(team_stats, model, features, match_probs, ko_lookup, elim_cap):
+    global _team_stats, _model, _features, _match_probs, _ko_lookup, _elim_cap
+    _team_stats    = team_stats
+    _model         = model
+    _features      = features
+    _match_probs   = match_probs
+    _ko_lookup     = ko_lookup
+    _elim_cap      = elim_cap
 
 def _team_group(team):
     return next((g for g, teams in GROUPS.items() if team in teams), None)
 
 def _run_sim_wrapper(_):
-    return _run_single_simulation(_team_stats, _model, _features, _match_probs)
+    return _run_single_simulation(_team_stats, _model, _features, _match_probs, _ko_lookup, _elim_cap)
 
 
 # ── Core simulation logic ─────────────────────────────────────────────────────
@@ -113,7 +117,9 @@ def _simulate_knockout_match(team_a, team_b, team_stats, model, features):
     return team_a if np.random.random() < p_h_adj else team_b
 
 
-def _run_single_simulation(team_stats, model, features, match_probs):
+def _run_single_simulation(team_stats, model, features, match_probs, ko_lookup=None, elim_cap=None):
+    ko_lookup = ko_lookup or {}
+    elim_cap = elim_cap or {}
     results = {t: "Group Stage" for g in GROUPS.values() for t in g}
     group_winners, group_runners, third_place_teams = {}, {}, []
 
@@ -152,7 +158,11 @@ def _run_single_simulation(team_stats, model, features, match_probs):
     def play_round(matchups, round_name):
         winners = []
         for a, b in matchups:
-            w = _simulate_knockout_match(a, b, team_stats, model, features)
+            teams = frozenset([a, b])
+            if teams in ko_lookup:
+                w = ko_lookup[teams]
+            else:
+                w = _simulate_knockout_match(a, b, team_stats, model, features)
             results[w] = round_name
             winners.append(w)
         return winners
@@ -162,8 +172,20 @@ def _run_single_simulation(team_stats, model, features, match_probs):
     sf   = play_round([(qf[i],  qf[i+1])  for i in range(0, len(qf),  2)], "Semi-Final")
     fin  = play_round([(sf[i],  sf[i+1])  for i in range(0, len(sf),  2)], "Final")
     if len(fin) >= 2:
-        champ = _simulate_knockout_match(fin[0], fin[1], team_stats, model, features)
+        fset = frozenset(fin)
+        if fset in ko_lookup:
+            champ = ko_lookup[fset]
+        else:
+            champ = _simulate_knockout_match(fin[0], fin[1], team_stats, model, features)
         results[champ] = "Champion"
+
+    for team in results:
+        if team in elim_cap:
+            cap_round = elim_cap[team]
+            cap_idx = ROUND_ORDER.index(cap_round)
+            actual_idx = ROUND_ORDER.index(results[team])
+            if actual_idx > cap_idx:
+                results[team] = cap_round
 
     return results
 
@@ -231,12 +253,32 @@ async def run_simulation_background(state):
         state.sim_running = False
 
 
+def _load_ko_data():
+    try:
+        from pipeline.knockout_tracker import load_results
+        ko_data = load_results()
+        ko_lookup = {}
+        elim_cap = {}
+        for mno, r in ko_data.items():
+            teams = frozenset([r["home"], r["away"]])
+            ko_lookup[teams] = r["winner"]
+            loser = r["loser"]
+            stage = r["stage"]
+            if loser not in elim_cap:
+                elim_cap[loser] = stage
+        return ko_lookup, elim_cap
+    except Exception:
+        return {}, {}
+
+
 def _run_mc_sync(state):
     import os
     team_stats  = state.team_stats
     model       = state.model
     features    = state.features
     match_probs = state.match_probs
+
+    ko_lookup, elim_cap = _load_ko_data()
 
     all_teams = [t for g in GROUPS.values() for t in g]
     counts = {t: {r: 0 for r in ROUND_ORDER} for t in all_teams}
@@ -247,7 +289,7 @@ def _run_mc_sync(state):
     with Pool(
         processes=n_workers,
         initializer=_pool_initializer,
-        initargs=(team_stats, model, features, match_probs),
+        initargs=(team_stats, model, features, match_probs, ko_lookup, elim_cap),
     ) as pool:
         for i, sim_results in enumerate(
             pool.imap_unordered(_run_sim_wrapper, range(N_SIMULATIONS)), 1

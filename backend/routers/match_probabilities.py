@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pathlib import Path
 from datetime import datetime, timezone
 import json
+import re
 
 from backend.state import app_state
 from backend.database import get_db
@@ -19,12 +20,99 @@ FIXTURES_PATH = Path("data/cache/fixtures.json")
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+def _is_placeholder(name: str) -> bool:
+    if name == "TBD":
+        return True
+    if re.match(r"Winner Match \d+", name):
+        return True
+    if re.match(r"Loser Match \d+", name):
+        return True
+    if name.startswith("Group "):
+        return True
+    return False
+
+
+def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
+    """
+    For knockout fixtures where the API returns TBD team names, try to
+    resolve them using the bracket tracker (knockout_tracker + group_tracker).
+    Returns fixtures with team names filled in where possible.
+    """
+    try:
+        from pipeline.knockout_tracker import resolve_team, load_results
+        from pipeline.group_tracker import load_standings
+        from pipeline.wc2026_fixtures import FIXTURES as WC_FIXTURES
+    except Exception:
+        return fixtures
+
+    results = load_results()
+    standings = load_standings()
+
+    resolved_lookup = {}
+    for wcf in WC_FIXTURES:
+        t1 = resolve_team(wcf["team1"], results, standings)
+        t2 = resolve_team(wcf["team2"], results, standings)
+        t1_real = not _is_placeholder(t1)
+        t2_real = not _is_placeholder(t2)
+        resolved_lookup[wcf["match_no"]] = {
+            "team1": t1, "team2": t2,
+            "t1_real": t1_real, "t2_real": t2_real,
+            "date": wcf["date"],
+            "stage": wcf["stage"],
+        }
+
+    for f in fixtures:
+        if f["stage"] == "Group Stage":
+            continue
+
+        home = f.get("team1", "TBD")
+        away = f.get("team2", "TBD")
+
+        known_team = None
+        if not _is_placeholder(home):
+            known_team = home
+        elif not _is_placeholder(away):
+            known_team = away
+
+        stage_key = f["stage"].lower()
+
+        candidates = []
+        for mno, rf in resolved_lookup.items():
+            wc_stage = rf["stage"].lower()
+            if wc_stage != stage_key:
+                continue
+            if known_team:
+                if rf["team1"] == known_team or rf["team2"] == known_team:
+                    candidates.append((mno, rf))
+            elif home == "TBD" and away == "TBD":
+                if rf["date"] == f["date"] and rf["t1_real"] and rf["t2_real"]:
+                    candidates.append((mno, rf))
+
+        if len(candidates) == 1:
+            _, rf = candidates[0]
+            if home == "TBD" and rf["t1_real"]:
+                f["team1"] = rf["team1"]
+            if away == "TBD" and rf["t2_real"]:
+                f["team2"] = rf["team2"]
+        elif known_team and len(candidates) > 1:
+            for mno, rf in candidates:
+                if rf["t1_real"] and rf["t2_real"]:
+                    if home == "TBD" and rf["t1_real"]:
+                        f["team1"] = rf["team1"]
+                    if away == "TBD" and rf["t2_real"]:
+                        f["team2"] = rf["team2"]
+                    break
+
+    return fixtures
+
+
 def _load_fixtures() -> list[dict]:
     if not FIXTURES_PATH.exists():
         return []
     with open(FIXTURES_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
-    return data.get("fixtures", [])
+    fixtures = data.get("fixtures", [])
+    return _resolve_fixtures(fixtures)
 
 
 def _load_probabilities() -> dict:
@@ -104,7 +192,7 @@ def _predict_match(home_team: str, away_team: str) -> dict:
 def _build_match_response(fixture: dict, probs: dict, match_probs: dict) -> dict:
     home  = fixture["team1"]
     away  = fixture["team2"]
-    known = home != "TBD" and away != "TBD"
+    known = not _is_placeholder(home) and not _is_placeholder(away)
 
     return {
         "match_id":       fixture["match_id"],
@@ -139,7 +227,8 @@ def get_all_match_probabilities():
     result = []
     for f in fixtures:
         home, away = f["team1"], f["team2"]
-        mp = _predict_match(home, away) if home != "TBD" and away != "TBD" else {}
+        known = not _is_placeholder(home) and not _is_placeholder(away)
+        mp = _predict_match(home, away) if known else {}
         result.append(_build_match_response(f, probs, mp))
 
     return result
@@ -168,7 +257,8 @@ def get_upcoming_matches(days: int = 3):
         delta = (match_date - today).days
         if 0 <= delta <= days and f["status"] not in ("FINISHED",):
             home, away = f["team1"], f["team2"]
-            mp = _predict_match(home, away) if home != "TBD" and away != "TBD" else {}
+            known = not _is_placeholder(home) and not _is_placeholder(away)
+            mp = _predict_match(home, away) if known else {}
             result.append(_build_match_response(f, probs, mp))
 
     return result
@@ -196,7 +286,8 @@ def get_matches_by_stage(stage_name: str):
     result = []
     for f in filtered:
         home, away = f["team1"], f["team2"]
-        mp = _predict_match(home, away) if home != "TBD" and away != "TBD" else {}
+        known = not _is_placeholder(home) and not _is_placeholder(away)
+        mp = _predict_match(home, away) if known else {}
         result.append(_build_match_response(f, probs, mp))
 
     return result
@@ -213,6 +304,7 @@ def get_match_probability(match_id: int):
 
     probs = _load_probabilities()
     home, away = fixture["team1"], fixture["team2"]
-    mp = _predict_match(home, away) if home != "TBD" and away != "TBD" else {}
+    known = not _is_placeholder(home) and not _is_placeholder(away)
+    mp = _predict_match(home, away) if known else {}
 
     return _build_match_response(fixture, probs, mp)

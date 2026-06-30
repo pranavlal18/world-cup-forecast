@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-12T04:51:53.352169+00:00",
+  "fetched_at": "2026-06-30T04:38:46.258945+00:00",
   "fixtures": [
     {
       "match_id": 537327,
@@ -35,7 +35,7 @@
       "team1": "Canada",
       "team2": "Bosnia and Herzegovina",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537345,
@@ -47,7 +47,7 @@
       "team1": "United States",
       "team2": "Paraguay",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537334,
@@ -59,7 +59,7 @@
       "team1": "Qatar",
       "team2": "Switzerland",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537339,
@@ -71,7 +71,7 @@
       "team1": "Brazil",
       "team2": "Morocco",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537340,
@@ -83,7 +83,7 @@
       "team1": "Haiti",
       "team2": "Scotland",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537346,
@@ -95,7 +95,7 @@
       "team1": "Australia",
       "team2": "Turkey",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537351,
@@ -107,7 +107,7 @@
       "team1": "Germany",
       "team2": "Cura\u00e7ao",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537357,
@@ -119,7 +119,7 @@
       "team1": "Netherlands",
       "team2": "Japan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537352,
@@ -131,7 +131,7 @@
       "team1": "Ivory Coast",
       "team2": "Ecuador",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537358,
@@ -143,7 +143,7 @@
       "team1": "Sweden",
       "team2": "Tunisia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537369,
@@ -155,7 +155,7 @@
       "team1": "Spain",
       "team2": "Cape Verde",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537363,
@@ -167,7 +167,7 @@
       "team1": "Belgium",
       "team2": "Egypt",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537370,
@@ -179,7 +179,7 @@
       "team1": "Saudi Arabia",
       "team2": "Uruguay",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537364,
@@ -191,7 +191,7 @@
       "team1": "Iran",
       "team2": "New Zealand",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537391,
@@ -203,7 +203,7 @@
       "team1": "France",
       "team2": "Senegal",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537392,
@@ -215,7 +215,7 @@
       "team1": "Iraq",
       "team2": "Norway",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537397,
@@ -227,7 +227,7 @@
       "team1": "Argentina",
       "team2": "Algeria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537398,
@@ -239,7 +239,7 @@
       "team1": "Austria",
       "team2": "Jordan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537403,
@@ -251,7 +251,7 @@
       "team1": "Portugal",
       "team2": "DR Congo",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537409,
@@ -263,7 +263,7 @@
       "team1": "England",
       "team2": "Croatia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537410,
@@ -275,7 +275,7 @@
       "team1": "Ghana",
       "team2": "Panama",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537404,
@@ -287,7 +287,7 @@
       "team1": "Uzbekistan",
       "team2": "Colombia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537329,
@@ -299,7 +299,7 @@
       "team1": "Czechia",
       "team2": "South Africa",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537335,
@@ -311,7 +311,7 @@
       "team1": "Switzerland",
       "team2": "Bosnia and Herzegovina",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537336,
@@ -323,7 +323,7 @@
       "team1": "Canada",
       "team2": "Qatar",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537330,
@@ -335,7 +335,7 @@
       "team1": "Mexico",
       "team2": "South Korea",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537348,
@@ -347,7 +347,7 @@
       "team1": "United States",
       "team2": "Australia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537342,
@@ -359,7 +359,7 @@
       "team1": "Scotland",
       "team2": "Morocco",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537341,
@@ -371,7 +371,7 @@
       "team1": "Brazil",
       "team2": "Haiti",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537347,
@@ -383,7 +383,7 @@
       "team1": "Turkey",
       "team2": "Paraguay",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537359,
@@ -395,7 +395,7 @@
       "team1": "Netherlands",
       "team2": "Sweden",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537353,
@@ -407,7 +407,7 @@
       "team1": "Germany",
       "team2": "Ivory Coast",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537354,
@@ -419,7 +419,7 @@
       "team1": "Ecuador",
       "team2": "Cura\u00e7ao",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537360,
@@ -431,7 +431,7 @@
       "team1": "Tunisia",
       "team2": "Japan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537371,
@@ -443,7 +443,7 @@
       "team1": "Spain",
       "team2": "Saudi Arabia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537365,
@@ -455,7 +455,7 @@
       "team1": "Belgium",
       "team2": "Iran",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537372,
@@ -467,7 +467,7 @@
       "team1": "Uruguay",
       "team2": "Cape Verde",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537366,
@@ -479,7 +479,7 @@
       "team1": "New Zealand",
       "team2": "Egypt",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537399,
@@ -491,7 +491,7 @@
       "team1": "Argentina",
       "team2": "Austria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537393,
@@ -503,7 +503,7 @@
       "team1": "France",
       "team2": "Iraq",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537394,
@@ -515,7 +515,7 @@
       "team1": "Norway",
       "team2": "Senegal",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537400,
@@ -527,7 +527,7 @@
       "team1": "Jordan",
       "team2": "Algeria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537405,
@@ -539,7 +539,7 @@
       "team1": "Portugal",
       "team2": "Uzbekistan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537411,
@@ -551,7 +551,7 @@
       "team1": "England",
       "team2": "Ghana",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537412,
@@ -563,7 +563,7 @@
       "team1": "Panama",
       "team2": "Croatia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537406,
@@ -575,7 +575,7 @@
       "team1": "Colombia",
       "team2": "DR Congo",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537337,
@@ -587,7 +587,7 @@
       "team1": "Switzerland",
       "team2": "Canada",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537338,
@@ -599,7 +599,7 @@
       "team1": "Bosnia and Herzegovina",
       "team2": "Qatar",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537344,
@@ -611,7 +611,7 @@
       "team1": "Morocco",
       "team2": "Haiti",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537343,
@@ -623,7 +623,7 @@
       "team1": "Scotland",
       "team2": "Brazil",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537331,
@@ -635,7 +635,7 @@
       "team1": "Czechia",
       "team2": "Mexico",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537332,
@@ -647,7 +647,7 @@
       "team1": "South Africa",
       "team2": "South Korea",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537355,
@@ -659,7 +659,7 @@
       "team1": "Ecuador",
       "team2": "Germany",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537356,
@@ -671,7 +671,7 @@
       "team1": "Cura\u00e7ao",
       "team2": "Ivory Coast",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537361,
@@ -683,7 +683,7 @@
       "team1": "Tunisia",
       "team2": "Netherlands",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537362,
@@ -695,7 +695,7 @@
       "team1": "Japan",
       "team2": "Sweden",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537349,
@@ -707,7 +707,7 @@
       "team1": "Turkey",
       "team2": "United States",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537350,
@@ -719,7 +719,7 @@
       "team1": "Paraguay",
       "team2": "Australia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537395,
@@ -731,7 +731,7 @@
       "team1": "Norway",
       "team2": "France",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537396,
@@ -743,7 +743,7 @@
       "team1": "Senegal",
       "team2": "Iraq",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537373,
@@ -755,7 +755,7 @@
       "team1": "Uruguay",
       "team2": "Spain",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537374,
@@ -767,7 +767,7 @@
       "team1": "Cape Verde",
       "team2": "Saudi Arabia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537367,
@@ -779,7 +779,7 @@
       "team1": "New Zealand",
       "team2": "Belgium",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537368,
@@ -791,7 +791,7 @@
       "team1": "Egypt",
       "team2": "Iran",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537413,
@@ -803,7 +803,7 @@
       "team1": "Panama",
       "team2": "England",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537414,
@@ -815,7 +815,7 @@
       "team1": "Croatia",
       "team2": "Ghana",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537407,
@@ -827,7 +827,7 @@
       "team1": "Colombia",
       "team2": "Portugal",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537408,
@@ -839,7 +839,7 @@
       "team1": "DR Congo",
       "team2": "Uzbekistan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537401,
@@ -851,7 +851,7 @@
       "team1": "Jordan",
       "team2": "Argentina",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537402,
@@ -863,7 +863,7 @@
       "team1": "Algeria",
       "team2": "Austria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537417,
@@ -872,10 +872,10 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "South Africa",
+      "team2": "Canada",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537423,
@@ -884,10 +884,10 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Brazil",
+      "team2": "Japan",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537415,
@@ -896,10 +896,10 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Germany",
+      "team2": "Paraguay",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537418,
@@ -908,10 +908,10 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Netherlands",
+      "team2": "Morocco",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537424,
@@ -920,8 +920,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Ivory Coast",
+      "team2": "Norway",
       "venue": "",
       "status": "TIMED"
     },
@@ -932,8 +932,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "France",
+      "team2": "Sweden",
       "venue": "",
       "status": "TIMED"
     },
@@ -944,8 +944,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Mexico",
+      "team2": "Ecuador",
       "venue": "",
       "status": "TIMED"
     },
@@ -956,8 +956,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "England",
+      "team2": "DR Congo",
       "venue": "",
       "status": "TIMED"
     },
@@ -968,8 +968,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Belgium",
+      "team2": "Senegal",
       "venue": "",
       "status": "TIMED"
     },
@@ -980,8 +980,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "United States",
+      "team2": "Bosnia and Herzegovina",
       "venue": "",
       "status": "TIMED"
     },
@@ -992,8 +992,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Spain",
+      "team2": "Austria",
       "venue": "",
       "status": "TIMED"
     },
@@ -1004,8 +1004,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Portugal",
+      "team2": "Croatia",
       "venue": "",
       "status": "TIMED"
     },
@@ -1016,8 +1016,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Switzerland",
+      "team2": "Algeria",
       "venue": "",
       "status": "TIMED"
     },
@@ -1028,8 +1028,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Australia",
+      "team2": "Egypt",
       "venue": "",
       "status": "TIMED"
     },
@@ -1040,8 +1040,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Argentina",
+      "team2": "Cape Verde",
       "venue": "",
       "status": "TIMED"
     },
@@ -1052,8 +1052,8 @@
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Colombia",
+      "team2": "Ghana",
       "venue": "",
       "status": "TIMED"
     },
@@ -1064,7 +1064,7 @@
       "time_tz": "UTC",
       "stage": "Round of 16",
       "group": null,
-      "team1": "TBD",
+      "team1": "Canada",
       "team2": "TBD",
       "venue": "",
       "status": "TIMED"

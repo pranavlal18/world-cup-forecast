@@ -1,0 +1,32 @@
+{
+  "73": {
+    "match_no": 73,
+    "home": "South Africa",
+    "away": "Canada",
+    "home_score": 0,
+    "away_score": 1,
+    "winner": "Canada",
+    "loser": "South Africa",
+    "stage": "Round of 32"
+  },
+  "74": {
+    "match_no": 74,
+    "home": "Brazil",
+    "away": "Japan",
+    "home_score": 2,
+    "away_score": 1,
+    "winner": "Brazil",
+    "loser": "Japan",
+    "stage": "Round of 32"
+  },
+  "76": {
+    "match_no": 76,
+    "home": "Netherlands",
+    "away": "Morocco",
+    "home_score": 3,
+    "away_score": 4,
+    "winner": "Morocco",
+    "loser": "Netherlands",
+    "stage": "Round of 32"
+  }
+}
