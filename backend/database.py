@@ -70,4 +70,15 @@ def init_db():
                 team2 VARCHAR(100),
                 status VARCHAR(20)
             );
+            CREATE TABLE IF NOT EXISTS knockout_results (
+                match_no INT PRIMARY KEY,
+                home VARCHAR(100) NOT NULL,
+                away VARCHAR(100) NOT NULL,
+                home_score INT NOT NULL,
+                away_score INT NOT NULL,
+                winner VARCHAR(100) NOT NULL,
+                loser VARCHAR(100) NOT NULL,
+                stage VARCHAR(50) NOT NULL,
+                recorded_at TIMESTAMP DEFAULT NOW()
+            );
         """)

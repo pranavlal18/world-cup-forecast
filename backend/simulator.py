@@ -255,8 +255,10 @@ async def run_simulation_background(state):
 
 def _load_ko_data():
     try:
-        from pipeline.knockout_tracker import load_results
-        ko_data = load_results()
+        from pipeline.knockout_tracker import load_results_from_db, load_results
+        ko_data = load_results_from_db()
+        if not ko_data:
+            ko_data = load_results()
         ko_lookup = {}
         elim_cap = {}
         for mno, r in ko_data.items():

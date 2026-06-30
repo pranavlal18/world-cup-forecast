@@ -19,13 +19,55 @@ def load_results() -> dict:
         return json.load(f)
 
 
+def _save_result_to_db(match_no, home, away, home_score, away_score, winner, loser, stage):
+    """Write a knockout result to the Supabase knockout_results table."""
+    try:
+        from backend.database import get_db
+        with get_db() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO knockout_results (match_no, home, away, home_score, away_score, winner, loser, stage)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (match_no) DO UPDATE SET
+                    home = EXCLUDED.home,
+                    away = EXCLUDED.away,
+                    home_score = EXCLUDED.home_score,
+                    away_score = EXCLUDED.away_score,
+                    winner = EXCLUDED.winner,
+                    loser = EXCLUDED.loser,
+                    stage = EXCLUDED.stage,
+                    recorded_at = NOW()
+            """, (match_no, home, away, home_score, away_score, winner, loser, stage))
+    except Exception as e:
+        print(f"  Warning: could not write match {match_no} to database: {e}")
+
+
+def load_results_from_db() -> dict:
+    """Load knockout results from Supabase. Returns {} if table doesn't exist."""
+    try:
+        from backend.database import get_db
+        with get_db() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT match_no, home, away, home_score, away_score, winner, loser, stage FROM knockout_results")
+            rows = cur.fetchall()
+        return {
+            str(r[0]): {
+                "match_no": r[0], "home": r[1], "away": r[2],
+                "home_score": r[3], "away_score": r[4],
+                "winner": r[5], "loser": r[6], "stage": r[7],
+            }
+            for r in rows
+        }
+    except Exception:
+        return {}
+
+
 def save_result(match_no: int, home: str, away: str,
                 home_score: int, away_score: int, stage: str,
                 penalty_winner: str | None = None):
     """
     Record a knockout match result and determine winner/loser.
-    For draws (Third-Place/Final etc. that go to penalties), pass
-    penalty_winner explicitly — otherwise winner defaults to `home`.
+    Writes to both local JSON file and Supabase database.
     """
     results = load_results()
 
@@ -42,7 +84,7 @@ def save_result(match_no: int, home: str, away: str,
                   f"defaulting winner to {home}. Update manually if incorrect.")
             winner, loser = home, away
 
-    results[str(match_no)] = {
+    entry = {
         "match_no":   match_no,
         "home":       home,
         "away":       away,
@@ -53,8 +95,11 @@ def save_result(match_no: int, home: str, away: str,
         "stage":      stage,
     }
 
+    results[str(match_no)] = entry
     with open(RESULTS_PATH, "w") as f:
         json.dump(results, f, indent=2)
+
+    _save_result_to_db(match_no, home, away, home_score, away_score, winner, loser, stage)
 
     print(f"  Recorded Match {match_no}: {home} {home_score}-{away_score} {away} → Winner: {winner}")
     return winner

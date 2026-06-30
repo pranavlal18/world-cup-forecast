@@ -39,13 +39,14 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
     Returns fixtures with team names filled in where possible.
     """
     try:
-        from pipeline.knockout_tracker import resolve_team, load_results
+        from pipeline.knockout_tracker import resolve_team, load_results_from_db, load_results
         from pipeline.group_tracker import load_standings
         from pipeline.wc2026_fixtures import FIXTURES as WC_FIXTURES
     except Exception:
         return fixtures
 
-    results = load_results()
+    db_results = load_results_from_db()
+    results = db_results if db_results else load_results()
     standings = load_standings()
 
     resolved_lookup = {}

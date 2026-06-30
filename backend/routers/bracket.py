@@ -19,22 +19,23 @@ def _load_api_fixtures() -> list[dict]:
 
 
 def _load_match_results() -> dict:
-    try:
-        from pipeline.knockout_tracker import load_results
-        return load_results()
-    except Exception:
-        return {}
+    from pipeline.knockout_tracker import load_results_from_db, load_results
+    db_results = load_results_from_db()
+    if db_results:
+        return db_results
+    return load_results()
 
 
 def _resolve_all_fixtures(fixtures):
     try:
-        from pipeline.knockout_tracker import resolve_fixture, load_results
+        from pipeline.knockout_tracker import resolve_fixture, load_results_from_db, load_results
         from pipeline.group_tracker import load_standings
         from pipeline.wc2026_fixtures import FIXTURES as WC_FIXTURES
     except Exception:
         return {}
 
-    results = load_results()
+    db_results = load_results_from_db()
+    results = db_results if db_results else load_results()
     standings = load_standings()
 
     wc_resolved = {}
