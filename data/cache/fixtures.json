@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-30T04:38:46.258945+00:00",
+  "fetched_at": "2026-06-30T06:39:50.413941+00:00",
   "fixtures": [
     {
       "match_id": 537327,
@@ -1065,7 +1065,7 @@
       "stage": "Round of 16",
       "group": null,
       "team1": "Canada",
-      "team2": "TBD",
+      "team2": "Morocco",
       "venue": "",
       "status": "TIMED"
     },
@@ -1076,7 +1076,7 @@
       "time_tz": "UTC",
       "stage": "Round of 16",
       "group": null,
-      "team1": "TBD",
+      "team1": "Paraguay",
       "team2": "TBD",
       "venue": "",
       "status": "TIMED"
@@ -1088,7 +1088,7 @@
       "time_tz": "UTC",
       "stage": "Round of 16",
       "group": null,
-      "team1": "TBD",
+      "team1": "Brazil",
       "team2": "TBD",
       "venue": "",
       "status": "TIMED"

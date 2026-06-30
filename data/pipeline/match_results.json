@@ -28,5 +28,15 @@
     "winner": "Morocco",
     "loser": "Netherlands",
     "stage": "Round of 32"
+  },
+  "75": {
+    "match_no": 75,
+    "home": "Germany",
+    "away": "Paraguay",
+    "home_score": 4,
+    "away_score": 5,
+    "winner": "Paraguay",
+    "loser": "Germany",
+    "stage": "Round of 32"
   }
 }

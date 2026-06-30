@@ -304,6 +304,107 @@ def run_simulation(team_stats, model, features, match_probs, completed_results=N
                 results[team]=cap_round
     return results
 
+def _build_ko_position_map():
+    """Build a position-based mapping from API fixtures to wc2026 match_nos,
+    grouped by stage. When team-name resolution fails, this is the fallback."""
+    from pipeline.api_client import load_fixtures_cache
+    api_fixtures = load_fixtures_cache()
+    wc_fixtures = _get_wc_fixtures()
+
+    knockout_stages = {"Round of 32", "Round of 16", "Quarter-Final",
+                       "Quarter-final", "Semi-Final", "Semi-final",
+                       "Third-Place Play-off", "Third-place play-off", "Final"}
+
+    api_by_stage = {}
+    for f in api_fixtures:
+        s = f["stage"]
+        if s == "Group Stage" or s not in knockout_stages:
+            continue
+        api_by_stage.setdefault(s, []).append(f)
+
+    wc_by_stage = {}
+    for f in wc_fixtures:
+        s = f["stage"]
+        if s == "Group Stage" or s not in knockout_stages:
+            continue
+        wc_by_stage.setdefault(s, []).append(f)
+
+    mapping = {}
+    for stage in set(list(api_by_stage.keys()) + list(wc_by_stage.keys())):
+        api_list = api_by_stage.get(stage, [])
+        wc_list = wc_by_stage.get(stage, [])
+        for i, af in enumerate(api_list):
+            if i < len(wc_list):
+                key = (af.get("team1", ""), af.get("team2", ""), stage)
+                mapping[key] = wc_list[i]["match_no"]
+
+    return mapping
+
+
+def _record_missing_ko_results():
+    """Check for completed knockout matches that are missing from match_results.json
+    and record them. Uses team-name matching first, falls back to position-based mapping."""
+    from pipeline.api_client import load_fixtures_cache
+    from pipeline.knockout_tracker import save_result, resolve_fixture, load_results, load_results_from_db
+    from pipeline.group_tracker import load_standings
+
+    completed = _load_completed_results()
+    if not completed:
+        return 0
+
+    ko_results = load_results_from_db()
+    if not ko_results:
+        ko_results = load_results()
+
+    recorded = set()
+    for r in ko_results.values():
+        recorded.add(frozenset([r["home"], r["away"]]))
+
+    fixtures = load_fixtures_cache()
+    ko_fixtures = [f for f in fixtures if f["stage"] != "Group Stage"]
+
+    position_map = _build_ko_position_map()
+    results = load_results()
+    standings = load_standings()
+    wc_fixtures = _get_wc_fixtures()
+
+    count = 0
+    for af in ko_fixtures:
+        t1, t2 = af.get("team1", "TBD"), af.get("team2", "TBD")
+        if t1 == "TBD" or t2 == "TBD":
+            continue
+        teams = frozenset([t1, t2])
+        if teams in recorded:
+            continue
+        stage = af["stage"]
+        score = completed.get((t1, t2)) or completed.get((t2, t1))
+        if score is None:
+            continue
+
+        match_no_found = None
+        for f in wc_fixtures:
+            if f["stage"] == "Group Stage" or f.get("group"):
+                continue
+            resolved = resolve_fixture(f, results, standings)
+            if (resolved["team1"] == t1 and resolved["team2"] == t2) or \
+               (resolved["team1"] == t2 and resolved["team2"] == t1):
+                match_no_found = f["match_no"]
+                break
+
+        if match_no_found is None:
+            match_no_found = position_map.get((t1, t2, stage)) or position_map.get((t2, t1, stage))
+
+        if match_no_found is not None:
+            hs, as_ = score
+            save_result(match_no_found, t1, t2, hs, as_, stage)
+            recorded.add(teams)
+            count += 1
+        else:
+            print(f"  ⚠ Could not match knockout result {t1} vs {t2} to a fixture")
+
+    return count
+
+
 def run_pipeline(force_simulate=False):
     from pipeline.api_client import fetch_completed_matches, load_fixtures_cache
     from pipeline.group_tracker import update_group_standings
@@ -332,13 +433,10 @@ def run_pipeline(force_simulate=False):
                     r["home_score"], r["away_score"]
                 )
             else:
-                # Knockout stage — find the wc2026_fixtures.py match_no by
-                # resolving each knockout fixture's placeholders and matching
-                # team names against the real result from the API.
                 from pipeline.knockout_tracker import save_result, resolve_fixture, load_results
                 from pipeline.group_tracker import load_standings
 
-                wc_fixtures = elo_mod and _get_wc_fixtures()  # see helper below
+                wc_fixtures = elo_mod and _get_wc_fixtures()
                 results   = load_results()
                 standings = load_standings()
 
@@ -351,6 +449,14 @@ def run_pipeline(force_simulate=False):
                        (resolved["team1"] == r["away_team"] and resolved["team2"] == r["home_team"]):
                         match_no_found = f["match_no"]
                         break
+
+                if match_no_found is None:
+                    position_map = _build_ko_position_map()
+                    match_no_found = position_map.get(
+                        (r["home_team"], r["away_team"], r["stage"])
+                    ) or position_map.get(
+                        (r["away_team"], r["home_team"], r["stage"])
+                    )
 
                 if match_no_found is None:
                     print(f"  ⚠ Could not match knockout result {r['home_team']} vs "
@@ -389,6 +495,11 @@ def run_pipeline(force_simulate=False):
         print(f"  {len(completed_results)} completed match(es) locked into simulation:")
         for (h,a),(hs,as_) in completed_results.items():
             print(f"    {h} {hs}-{as_} {a}")
+
+    # Reconcile: record any knockout results that are missing from match_results.json
+    missing_ko = _record_missing_ko_results()
+    if missing_ko:
+        print(f"  Recorded {missing_ko} missing knockout result(s)")
 
     # Load knockout results to lock in real outcomes
     from pipeline.knockout_tracker import load_results as load_ko_results
