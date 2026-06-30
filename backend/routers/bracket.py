@@ -26,6 +26,56 @@ def _load_match_results() -> dict:
         return {}
 
 
+def _resolve_all_fixtures(fixtures):
+    try:
+        from pipeline.knockout_tracker import resolve_fixture, load_results
+        from pipeline.group_tracker import load_standings
+        from pipeline.wc2026_fixtures import FIXTURES as WC_FIXTURES
+    except Exception:
+        return {}
+
+    results = load_results()
+    standings = load_standings()
+
+    wc_resolved = {}
+    for wcf in WC_FIXTURES:
+        if wcf["stage"] == "Group Stage":
+            continue
+        resolved = resolve_fixture(wcf, results, standings)
+        t1, t2 = resolved["team1"], resolved["team2"]
+        t1_ok = t1 != "TBD" and not t1.startswith("Winner") and not t1.startswith("Loser") and not t1.startswith("Group ")
+        t2_ok = t2 != "TBD" and not t2.startswith("Winner") and not t2.startswith("Loser") and not t2.startswith("Group ")
+        if t1_ok and t2_ok:
+            wc_resolved[wcf["stage"].lower()] = wc_resolved.get(wcf["stage"].lower(), [])
+            wc_resolved[wcf["stage"].lower()].append({"team1": t1, "team2": t2})
+
+    api_by_stage = {}
+    for f in fixtures:
+        if f["stage"] == "Group Stage":
+            continue
+        stage_key = f["stage"].lower()
+        api_by_stage.setdefault(stage_key, []).append(f)
+
+    mapping = {}
+    for stage_key, api_list in api_by_stage.items():
+        wc_list = wc_resolved.get(stage_key, [])
+        for i, af in enumerate(api_list):
+            if i < len(wc_list):
+                af1 = af.get("team1", "TBD")
+                af2 = af.get("team2", "TBD")
+                wf1 = wc_list[i]["team1"]
+                wf2 = wc_list[i]["team2"]
+
+                def _is_tbd(name):
+                    return name == "TBD" or name.startswith("Winner") or name.startswith("Loser") or name.startswith("Group ")
+
+                new_t1 = wf1 if _is_tbd(af1) else af1
+                new_t2 = wf2 if _is_tbd(af2) else af2
+                mapping[af.get("match_id")] = (new_t1, new_t2)
+
+    return mapping
+
+
 @router.get("/")
 def get_bracket():
     probs = {}
@@ -58,6 +108,10 @@ def get_bracket():
 
     bracket = {stage: [] for stage in ko_stages}
     match_results = _load_match_results()
+    resolution = _resolve_all_fixtures(api_fixtures)
+
+    def _is_tbd(name):
+        return name == "TBD" or name.startswith("Winner Match") or name.startswith("Loser Match")
 
     for f in api_fixtures:
         raw_stage = f["stage"]
@@ -65,34 +119,45 @@ def get_bracket():
         if stage is None:
             continue
 
-        team1 = f.get("team1", "TBD")
-        team2 = f.get("team2", "TBD")
+        mid = f.get("match_id")
+        if mid in resolution:
+            team1, team2 = resolution[mid]
+        else:
+            team1 = f.get("team1", "TBD")
+            team2 = f.get("team2", "TBD")
 
-        # Find matching result in match_results.json by team names
         result = None
-        for r in match_results.values():
-            teams_r = {r["home"], r["away"]}
-            teams_f = {team1, team2}
-            if "TBD" in teams_f:
-                known = {t for t in teams_f if t != "TBD"}
-                if known and known <= teams_r:
+        if not _is_tbd(team1) and not _is_tbd(team2):
+            for r in match_results.values():
+                if r["stage"] != raw_stage:
+                    continue
+                if r["home"] == team1 and r["away"] == team2:
                     result = r
                     break
-            elif teams_f == teams_r:
-                result = r
-                break
+                if r["home"] == team2 and r["away"] == team1:
+                    result = r
+                    break
+
+        score1, score2 = None, None
+        if result:
+            if result["home"] == team1:
+                score1 = result.get("home_score")
+                score2 = result.get("away_score")
+            else:
+                score1 = result.get("away_score")
+                score2 = result.get("home_score")
 
         bracket[stage].append({
-            "match_id":       f.get("match_id"),
+            "match_id":       mid,
             "date":           f.get("date", ""),
             "time":           f.get("time", ""),
             "team1":          team1,
             "team2":          team2,
-            "score1":         result.get("home_score") if result else None,
-            "score2":         result.get("away_score") if result else None,
+            "score1":         score1,
+            "score2":         score2,
             "winner":         result.get("winner") if result else None,
             "is_played":      result is not None,
-            "both_teams_known": "TBD" not in (team1, team2),
+            "both_teams_known": not _is_tbd(team1) and not _is_tbd(team2),
             "team1_champion": probs.get(team1),
             "team2_champion": probs.get(team2),
         })
