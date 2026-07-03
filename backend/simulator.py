@@ -143,41 +143,16 @@ def _run_single_simulation(team_stats, model, features, match_probs, ko_lookup=N
     for t in third_sorted[:8]:
         results[t["team"]] = "Round of 32"
 
-    r32_teams = []
-    group_order = list(GROUPS.keys())
-    for i in range(0, len(group_order), 2):
-        g1, g2 = group_order[i], group_order[i + 1]
-        r32_teams.append((group_winners[g1], group_runners[g2]))
-        r32_teams.append((group_winners[g2], group_runners[g1]))
+    def simulate_fn(a, b):
+        return _simulate_knockout_match(a, b, team_stats, model, features)
 
-    third_qualifiers = [t["team"] for t in third_sorted[:8]]
-    for i in range(0, len(third_qualifiers), 2):
-        if i + 1 < len(third_qualifiers):
-            r32_teams.append((third_qualifiers[i], third_qualifiers[i + 1]))
+    from pipeline.bracket_resolver import run_bracket
+    bracket_results = run_bracket(
+        group_winners, group_runners, third_sorted[:8],
+        ko_lookup, simulate_fn,
+    )
 
-    def play_round(matchups, round_name):
-        winners = []
-        for a, b in matchups:
-            teams = frozenset([a, b])
-            if teams in ko_lookup:
-                w = ko_lookup[teams]
-            else:
-                w = _simulate_knockout_match(a, b, team_stats, model, features)
-            results[w] = round_name
-            winners.append(w)
-        return winners
-
-    r16  = play_round(r32_teams, "Round of 16")
-    qf   = play_round([(r16[i], r16[i+1]) for i in range(0, len(r16), 2)], "Quarter-Final")
-    sf   = play_round([(qf[i],  qf[i+1])  for i in range(0, len(qf),  2)], "Semi-Final")
-    fin  = play_round([(sf[i],  sf[i+1])  for i in range(0, len(sf),  2)], "Final")
-    if len(fin) >= 2:
-        fset = frozenset(fin)
-        if fset in ko_lookup:
-            champ = ko_lookup[fset]
-        else:
-            champ = _simulate_knockout_match(fin[0], fin[1], team_stats, model, features)
-        results[champ] = "Champion"
+    results.update(bracket_results)
 
     for team in results:
         if team in elim_cap:

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-30T06:39:50.413941+00:00",
+  "fetched_at": "2026-07-03T16:34:39.123358+00:00",
   "fixtures": [
     {
       "match_id": 537327,
@@ -923,7 +923,7 @@
       "team1": "Ivory Coast",
       "team2": "Norway",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537416,
@@ -935,19 +935,19 @@
       "team1": "France",
       "team2": "Sweden",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537425,
       "date": "2026-07-01",
-      "time": "01:00",
+      "time": "02:00",
       "time_tz": "UTC",
       "stage": "Round of 32",
       "group": null,
       "team1": "Mexico",
       "team2": "Ecuador",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537426,
@@ -959,7 +959,7 @@
       "team1": "England",
       "team2": "DR Congo",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537422,
@@ -971,7 +971,7 @@
       "team1": "Belgium",
       "team2": "Senegal",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537421,
@@ -983,7 +983,7 @@
       "team1": "United States",
       "team2": "Bosnia and Herzegovina",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537420,
@@ -995,7 +995,7 @@
       "team1": "Spain",
       "team2": "Austria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537419,
@@ -1007,7 +1007,7 @@
       "team1": "Portugal",
       "team2": "Croatia",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537429,
@@ -1019,7 +1019,7 @@
       "team1": "Switzerland",
       "team2": "Algeria",
       "venue": "",
-      "status": "TIMED"
+      "status": "FINISHED"
     },
     {
       "match_id": 537428,
@@ -1077,7 +1077,7 @@
       "stage": "Round of 16",
       "group": null,
       "team1": "Paraguay",
-      "team2": "TBD",
+      "team2": "France",
       "venue": "",
       "status": "TIMED"
     },
@@ -1089,7 +1089,7 @@
       "stage": "Round of 16",
       "group": null,
       "team1": "Brazil",
-      "team2": "TBD",
+      "team2": "Norway",
       "venue": "",
       "status": "TIMED"
     },
@@ -1100,8 +1100,8 @@
       "time_tz": "UTC",
       "stage": "Round of 16",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "Mexico",
+      "team2": "England",
       "venue": "",
       "status": "TIMED"
     },
@@ -1124,8 +1124,8 @@
       "time_tz": "UTC",
       "stage": "Round of 16",
       "group": null,
-      "team1": "TBD",
-      "team2": "TBD",
+      "team1": "United States",
+      "team2": "Belgium",
       "venue": "",
       "status": "TIMED"
     },

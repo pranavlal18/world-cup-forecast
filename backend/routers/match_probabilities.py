@@ -34,9 +34,10 @@ def _is_placeholder(name: str) -> bool:
 
 def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
     """
-    For knockout fixtures where the API returns TBD team names, try to
-    resolve them using the bracket tracker (knockout_tracker + group_tracker).
-    Returns fixtures with team names filled in where possible.
+    For knockout fixtures, resolve team names using the WC fixtures data
+    (source of truth). Matches API fixtures to WC fixtures by converting
+    both to UTC and finding the closest time match within the same stage.
+    Always overwrites API team names with the correct WC resolved values.
     """
     try:
         from pipeline.knockout_tracker import resolve_team, load_results_from_db, load_results
@@ -49,7 +50,32 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
     results = db_results if db_results else load_results()
     standings = load_standings()
 
+    from datetime import datetime, timedelta
+
+    VENUE_TZ = {
+        "NRG Stadium": -5,
+        "Lincoln Financial Field": -4,
+        "MetLife Stadium": -4,
+        "Estadio Azteca": -5,
+        "AT&T Stadium": -5,
+        "SoFi Stadium": -7,
+        "BC Place": -7,
+        "Hard Rock Stadium": -4,
+        "Mercedes-Benz Stadium": -4,
+        "Gillette Stadium": -4,
+        "Arrowhead Stadium": -5,
+        "Levi's Stadium": -7,
+        "Estadio BBVA": -5,
+        "Lumen Field": -7,
+    }
+
+    def _local_to_utc(date_str, time_str, venue):
+        tz_offset = VENUE_TZ.get(venue, 0)
+        local_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        return local_dt - timedelta(hours=tz_offset)
+
     resolved_lookup = {}
+    wc_utc_times = {}
     for wcf in WC_FIXTURES:
         t1 = resolve_team(wcf["team1"], results, standings)
         t2 = resolve_team(wcf["team2"], results, standings)
@@ -61,48 +87,39 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
             "date": wcf["date"],
             "stage": wcf["stage"],
         }
+        if wcf["stage"] != "Group Stage":
+            wc_utc_times[wcf["match_no"]] = _local_to_utc(
+                wcf["date"], wcf["time"], wcf["venue"]
+            )
 
     for f in fixtures:
         if f["stage"] == "Group Stage":
             continue
 
-        home = f.get("team1", "TBD")
-        away = f.get("team2", "TBD")
+        api_stage = f["stage"].lower()
+        try:
+            api_dt = datetime.strptime(f"{f['date']} {f['time']}", "%Y-%m-%d %H:%M")
+        except (ValueError, KeyError):
+            continue
 
-        known_team = None
-        if not _is_placeholder(home):
-            known_team = home
-        elif not _is_placeholder(away):
-            known_team = away
+        best_match = None
+        best_diff = timedelta(hours=6)
 
-        stage_key = f["stage"].lower()
-
-        candidates = []
-        for mno, rf in resolved_lookup.items():
-            wc_stage = rf["stage"].lower()
-            if wc_stage != stage_key:
+        for mno, utc_dt in wc_utc_times.items():
+            rf = resolved_lookup[mno]
+            if rf["stage"].lower() != api_stage:
                 continue
-            if known_team:
-                if rf["team1"] == known_team or rf["team2"] == known_team:
-                    candidates.append((mno, rf))
-            elif home == "TBD" and away == "TBD":
-                if rf["date"] == f["date"] and rf["t1_real"] and rf["t2_real"]:
-                    candidates.append((mno, rf))
+            diff = abs(api_dt - utc_dt)
+            if diff < best_diff:
+                best_diff = diff
+                best_match = mno
 
-        if len(candidates) == 1:
-            _, rf = candidates[0]
-            if home == "TBD" and rf["t1_real"]:
+        if best_match is not None:
+            rf = resolved_lookup[best_match]
+            if rf["t1_real"]:
                 f["team1"] = rf["team1"]
-            if away == "TBD" and rf["t2_real"]:
+            if rf["t2_real"]:
                 f["team2"] = rf["team2"]
-        elif known_team and len(candidates) > 1:
-            for mno, rf in candidates:
-                if rf["t1_real"] and rf["t2_real"]:
-                    if home == "TBD" and rf["t1_real"]:
-                        f["team1"] = rf["team1"]
-                    if away == "TBD" and rf["t2_real"]:
-                        f["team2"] = rf["team2"]
-                    break
 
     return fixtures
 

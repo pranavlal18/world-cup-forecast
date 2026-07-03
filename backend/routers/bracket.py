@@ -34,45 +34,80 @@ def _resolve_all_fixtures(fixtures):
     except Exception:
         return {}
 
+    from datetime import datetime, timedelta
+
     db_results = load_results_from_db()
     results = db_results if db_results else load_results()
     standings = load_standings()
 
-    wc_resolved = {}
+    VENUE_TZ = {
+        "NRG Stadium": -5,
+        "Lincoln Financial Field": -4,
+        "MetLife Stadium": -4,
+        "Estadio Azteca": -5,
+        "AT&T Stadium": -5,
+        "SoFi Stadium": -7,
+        "BC Place": -7,
+        "Hard Rock Stadium": -4,
+        "Mercedes-Benz Stadium": -4,
+        "Gillette Stadium": -4,
+        "Arrowhead Stadium": -5,
+        "Levi's Stadium": -7,
+        "Estadio BBVA": -5,
+        "Lumen Field": -7,
+    }
+
+    def _local_to_utc(date_str, time_str, venue):
+        tz_offset = VENUE_TZ.get(venue, 0)
+        local_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        return local_dt - timedelta(hours=tz_offset)
+
+    def _is_tbd(name):
+        return name == "TBD" or name.startswith("Winner") or name.startswith("Loser") or name.startswith("Group ")
+
+    wc_lookup = {}
     for wcf in WC_FIXTURES:
         if wcf["stage"] == "Group Stage":
             continue
         resolved = resolve_fixture(wcf, results, standings)
         t1, t2 = resolved["team1"], resolved["team2"]
-        t1_ok = t1 != "TBD" and not t1.startswith("Winner") and not t1.startswith("Loser") and not t1.startswith("Group ")
-        t2_ok = t2 != "TBD" and not t2.startswith("Winner") and not t2.startswith("Loser") and not t2.startswith("Group ")
-        if t1_ok and t2_ok:
-            wc_resolved[wcf["stage"].lower()] = wc_resolved.get(wcf["stage"].lower(), [])
-            wc_resolved[wcf["stage"].lower()].append({"team1": t1, "team2": t2})
+        t1_real = not _is_tbd(t1)
+        t2_real = not _is_tbd(t2)
+        utc_dt = _local_to_utc(wcf["date"], wcf["time"], wcf["venue"])
+        wc_lookup[wcf["match_no"]] = {
+            "team1": t1, "team2": t2,
+            "t1_real": t1_real, "t2_real": t2_real,
+            "stage": wcf["stage"].lower(),
+            "utc_dt": utc_dt,
+        }
 
-    api_by_stage = {}
+    mapping = {}
     for f in fixtures:
         if f["stage"] == "Group Stage":
             continue
-        stage_key = f["stage"].lower()
-        api_by_stage.setdefault(stage_key, []).append(f)
 
-    mapping = {}
-    for stage_key, api_list in api_by_stage.items():
-        wc_list = wc_resolved.get(stage_key, [])
-        for i, af in enumerate(api_list):
-            if i < len(wc_list):
-                af1 = af.get("team1", "TBD")
-                af2 = af.get("team2", "TBD")
-                wf1 = wc_list[i]["team1"]
-                wf2 = wc_list[i]["team2"]
+        api_stage = f["stage"].lower()
+        try:
+            api_dt = datetime.strptime(f"{f['date']} {f['time']}", "%Y-%m-%d %H:%M")
+        except (ValueError, KeyError):
+            continue
 
-                def _is_tbd(name):
-                    return name == "TBD" or name.startswith("Winner") or name.startswith("Loser") or name.startswith("Group ")
+        best_match = None
+        best_diff = timedelta(hours=6)
 
-                new_t1 = wf1 if _is_tbd(af1) else af1
-                new_t2 = wf2 if _is_tbd(af2) else af2
-                mapping[af.get("match_id")] = (new_t1, new_t2)
+        for mno, wc in wc_lookup.items():
+            if wc["stage"] != api_stage:
+                continue
+            diff = abs(api_dt - wc["utc_dt"])
+            if diff < best_diff:
+                best_diff = diff
+                best_match = mno
+
+        if best_match is not None:
+            wc = wc_lookup[best_match]
+            t1 = wc["team1"] if wc["t1_real"] else f.get("team1", "TBD")
+            t2 = wc["team2"] if wc["t2_real"] else f.get("team2", "TBD")
+            mapping[f.get("match_id")] = (t1, t2)
 
     return mapping
 

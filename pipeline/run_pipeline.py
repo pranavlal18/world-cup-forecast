@@ -257,44 +257,26 @@ def run_simulation(team_stats, model, features, match_probs, completed_results=N
     ko_lookup = ko_lookup or {}
     elimination_cap = elimination_cap or {}
     results = {t:"Group Stage" for g in GROUPS.values() for t in g}
-    winners,thirds = {},[]
+    winners,runners,thirds = {},{},[]
     for gname,teams in GROUPS.items():
         s = sim_group(teams,team_stats,model,features,match_probs,completed_results)
         ranked = rank_group(s)
         winners[gname] = ranked[0]
+        runners[gname] = ranked[1]
         thirds.append({"team":ranked[2],"pts":s[ranked[2]]["pts"],"gd":s[ranked[2]]["gd"],"gf":s[ranked[2]]["gf"]})
         results[ranked[0]]="Round of 32"; results[ranked[1]]="Round of 32"
     third_sorted = sorted(thirds,key=lambda x:(x["pts"],x["gd"],x["gf"],np.random.random()),reverse=True)
     for t in third_sorted[:8]: results[t["team"]]="Round of 32"
-    r32=[]; gkeys=list(GROUPS.keys())
-    runners={gname:rank_group(sim_group(GROUPS[gname],team_stats,model,features,match_probs,completed_results))[1] for gname in gkeys}
-    for i in range(0,len(gkeys),2):
-        g1,g2=gkeys[i],gkeys[i+1]
-        r32.append((winners[g1],runners[g2])); r32.append((winners[g2],runners[g1]))
-    tq=[t["team"] for t in third_sorted[:8]]
-    for i in range(0,len(tq),2):
-        if i+1<len(tq): r32.append((tq[i],tq[i+1]))
-    def play(matchups,rname):
-        w=[]
-        for a,b in matchups:
-            teams=frozenset([a,b])
-            if teams in ko_lookup:
-                winner=ko_lookup[teams]
-            else:
-                winner=ko_match(a,b,team_stats,model,features)
-            results[winner]=rname; w.append(winner)
-        return w
-    r16=play(r32,"Round of 16")
-    qf=play([(r16[i],r16[i+1]) for i in range(0,len(r16),2)],"Quarter-Final")
-    sf=play([(qf[i],qf[i+1])   for i in range(0,len(qf),2)], "Semi-Final")
-    fn=play([(sf[i],sf[i+1])   for i in range(0,len(sf),2)], "Final")
-    if len(fn)>=2:
-        fset=frozenset(fn)
-        if fset in ko_lookup:
-            champ=ko_lookup[fset]
-        else:
-            champ=ko_match(fn[0],fn[1],team_stats,model,features)
-        results[champ]="Champion"
+
+    def simulate_fn(a, b):
+        return ko_match(a, b, team_stats, model, features)
+
+    from pipeline.bracket_resolver import run_bracket
+    bracket_results = run_bracket(
+        winners, runners, third_sorted[:8], ko_lookup, simulate_fn,
+    )
+    results.update(bracket_results)
+
     for team in results:
         if team in elimination_cap:
             cap_round=elimination_cap[team]
