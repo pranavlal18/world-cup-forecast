@@ -56,7 +56,7 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
         "NRG Stadium": -5,
         "Lincoln Financial Field": -4,
         "MetLife Stadium": -4,
-        "Estadio Azteca": -5,
+        "Estadio Azteca": -6,
         "AT&T Stadium": -5,
         "SoFi Stadium": -7,
         "BC Place": -7,
@@ -65,7 +65,7 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
         "Gillette Stadium": -4,
         "Arrowhead Stadium": -5,
         "Levi's Stadium": -7,
-        "Estadio BBVA": -5,
+        "Estadio BBVA": -6,
         "Lumen Field": -7,
     }
 
@@ -118,8 +118,12 @@ def _resolve_fixtures(fixtures: list[dict]) -> list[dict]:
             rf = resolved_lookup[best_match]
             if rf["t1_real"]:
                 f["team1"] = rf["team1"]
+            else:
+                f["team1"] = "TBD"
             if rf["t2_real"]:
                 f["team2"] = rf["team2"]
+            else:
+                f["team2"] = "TBD"
 
     return fixtures
 

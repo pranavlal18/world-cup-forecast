@@ -44,7 +44,7 @@ def _resolve_all_fixtures(fixtures):
         "NRG Stadium": -5,
         "Lincoln Financial Field": -4,
         "MetLife Stadium": -4,
-        "Estadio Azteca": -5,
+        "Estadio Azteca": -6,
         "AT&T Stadium": -5,
         "SoFi Stadium": -7,
         "BC Place": -7,
@@ -53,7 +53,7 @@ def _resolve_all_fixtures(fixtures):
         "Gillette Stadium": -4,
         "Arrowhead Stadium": -5,
         "Levi's Stadium": -7,
-        "Estadio BBVA": -5,
+        "Estadio BBVA": -6,
         "Lumen Field": -7,
     }
 
@@ -105,8 +105,8 @@ def _resolve_all_fixtures(fixtures):
 
         if best_match is not None:
             wc = wc_lookup[best_match]
-            t1 = wc["team1"] if wc["t1_real"] else f.get("team1", "TBD")
-            t2 = wc["team2"] if wc["t2_real"] else f.get("team2", "TBD")
+            t1 = wc["team1"] if wc["t1_real"] else "TBD"
+            t2 = wc["team2"] if wc["t2_real"] else "TBD"
             mapping[f.get("match_id")] = (t1, t2)
 
     return mapping
