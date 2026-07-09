@@ -181,10 +181,10 @@
   },
   "91": {
     "match_no": 91,
-    "home": "Norway",
-    "away": "Brazil",
-    "home_score": 2,
-    "away_score": 1,
+    "home": "Brazil",
+    "away": "Norway",
+    "home_score": 1,
+    "away_score": 2,
     "winner": "Norway",
     "loser": "Brazil",
     "stage": "Round of 16"
