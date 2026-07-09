@@ -128,5 +128,115 @@
     "winner": "Switzerland",
     "loser": "Algeria",
     "stage": "Round of 32"
+  },
+  "86": {
+    "match_no": 86,
+    "home": "Australia",
+    "away": "Egypt",
+    "home_score": 3,
+    "away_score": 5,
+    "winner": "Egypt",
+    "loser": "Australia",
+    "stage": "Round of 32"
+  },
+  "87": {
+    "match_no": 87,
+    "home": "Argentina",
+    "away": "Cape Verde",
+    "home_score": 3,
+    "away_score": 2,
+    "winner": "Argentina",
+    "loser": "Cape Verde",
+    "stage": "Round of 32"
+  },
+  "88": {
+    "match_no": 88,
+    "home": "Colombia",
+    "away": "Ghana",
+    "home_score": 1,
+    "away_score": 0,
+    "winner": "Colombia",
+    "loser": "Ghana",
+    "stage": "Round of 32"
+  },
+  "89": {
+    "match_no": 89,
+    "home": "Canada",
+    "away": "Morocco",
+    "home_score": 0,
+    "away_score": 3,
+    "winner": "Morocco",
+    "loser": "Canada",
+    "stage": "Round of 16"
+  },
+  "90": {
+    "match_no": 90,
+    "home": "Paraguay",
+    "away": "France",
+    "home_score": 0,
+    "away_score": 1,
+    "winner": "France",
+    "loser": "Paraguay",
+    "stage": "Round of 16"
+  },
+  "91": {
+    "match_no": 91,
+    "home": "Norway",
+    "away": "Brazil",
+    "home_score": 2,
+    "away_score": 1,
+    "winner": "Norway",
+    "loser": "Brazil",
+    "stage": "Round of 16"
+  },
+  "92": {
+    "match_no": 92,
+    "home": "Mexico",
+    "away": "England",
+    "home_score": 2,
+    "away_score": 3,
+    "winner": "England",
+    "loser": "Mexico",
+    "stage": "Round of 16"
+  },
+  "93": {
+    "match_no": 93,
+    "home": "Portugal",
+    "away": "Spain",
+    "home_score": 0,
+    "away_score": 1,
+    "winner": "Spain",
+    "loser": "Portugal",
+    "stage": "Round of 16"
+  },
+  "94": {
+    "match_no": 94,
+    "home": "United States",
+    "away": "Belgium",
+    "home_score": 1,
+    "away_score": 4,
+    "winner": "Belgium",
+    "loser": "United States",
+    "stage": "Round of 16"
+  },
+  "95": {
+    "match_no": 95,
+    "home": "Argentina",
+    "away": "Egypt",
+    "home_score": 3,
+    "away_score": 2,
+    "winner": "Argentina",
+    "loser": "Egypt",
+    "stage": "Round of 16"
+  },
+  "96": {
+    "match_no": 96,
+    "home": "Switzerland",
+    "away": "Colombia",
+    "home_score": 4,
+    "away_score": 3,
+    "winner": "Switzerland",
+    "loser": "Colombia",
+    "stage": "Round of 16"
   }
 }

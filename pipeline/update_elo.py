@@ -91,7 +91,7 @@ def save_ratings(ratings: dict):
         for t, e in sorted(ratings.items(), key=lambda x: -x[1])
     ])
     df.to_csv(RATINGS_PATH, index=False)
-    print(f"  Saved ratings → {RATINGS_PATH}")
+    print(f"  Saved ratings -> {RATINGS_PATH}")
 
 
 def expected_score(ra: float, rb: float) -> float:
@@ -133,7 +133,7 @@ def run():
         as_  = int(row["away_score"])
 
         if home not in ratings or away not in ratings:
-            print(f"  ⚠ Unknown team: {home} or {away}, skipping")
+            print(f"   Unknown team: {home} or {away}, skipping")
             continue
 
         ra = ratings[home]
@@ -146,8 +146,8 @@ def run():
         new_ra, new_rb = update_elo(ra, rb, score)
 
         print(f"  {home} {hs}-{as_} {away}")
-        print(f"    {home}: {ra:.0f} → {new_ra:.0f} ({new_ra-ra:+.0f})")
-        print(f"    {away}: {rb:.0f} → {new_rb:.0f} ({new_rb-rb:+.0f})")
+        print(f"    {home}: {ra:.0f} -> {new_ra:.0f} ({new_ra-ra:+.0f})")
+        print(f"    {away}: {rb:.0f} -> {new_rb:.0f} ({new_rb-rb:+.0f})")
 
         ratings[home] = new_ra
         ratings[away] = new_rb

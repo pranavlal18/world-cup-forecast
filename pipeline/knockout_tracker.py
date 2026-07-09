@@ -1,6 +1,6 @@
 """
 pipeline/knockout_tracker.py
-Resolves "Winner Match 73" → actual team name using recorded results.
+Resolves "Winner Match 73" -> actual team name using recorded results.
 """
 import json
 import re
@@ -80,7 +80,7 @@ def save_result(match_no: int, home: str, away: str,
             winner = penalty_winner
             loser = away if winner == home else home
         else:
-            print(f"  ⚠ Match {match_no} ended in a draw with no penalty_winner specified — "
+            print(f"   Match {match_no} ended in a draw with no penalty_winner specified — "
                   f"defaulting winner to {home}. Update manually if incorrect.")
             winner, loser = home, away
 
@@ -101,7 +101,7 @@ def save_result(match_no: int, home: str, away: str,
 
     _save_result_to_db(match_no, home, away, home_score, away_score, winner, loser, stage)
 
-    print(f"  Recorded Match {match_no}: {home} {home_score}-{away_score} {away} → Winner: {winner}")
+    print(f"  Recorded Match {match_no}: {home} {home_score}-{away_score} {away} -> Winner: {winner}")
     return winner
 
 

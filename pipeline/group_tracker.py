@@ -78,7 +78,7 @@ def _load_standings_from_db() -> dict | None:
             }
         return standings
     except Exception as e:
-        print(f"  ⚠ Could not load standings from DB: {e}")
+        print(f"   Could not load standings from DB: {e}")
         return None
 
 def _save_standings_to_db(standings: dict):
@@ -108,9 +108,9 @@ def _save_standings_to_db(standings: dict):
                         team, g, r["played"], r["won"], r["drawn"], r["lost"],
                         r["gf"], r["ga"], r["gd"], r["points"],
                     ))
-        print("  Standings saved to Supabase ✅")
+        print("  Standings saved to Supabase ")
     except Exception as e:
-        print(f"  ⚠ Could not save standings to DB: {e}")
+        print(f"   Could not save standings to DB: {e}")
 
 # ── Persistence (DB first, JSON fallback) ─────────────────────────────────────
 
@@ -158,7 +158,7 @@ def update_group_standings(
             break
 
     if group_letter is None:
-        print(f"  ⚠ Could not determine group for {home} vs {away}")
+        print(f"   Could not determine group for {home} vs {away}")
         return None
 
     standings = load_standings()

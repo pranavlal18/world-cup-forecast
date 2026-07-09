@@ -135,7 +135,7 @@ def job():
         save_fixtures_cache()
         run_pipeline()
     except Exception as e:
-        print(f"  ❌ Pipeline error: {e}")
+        print(f"   Pipeline error: {e}")
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
@@ -162,7 +162,7 @@ def main():
             current_interval = desired
             print(
                 f"  [{datetime.now().strftime('%H:%M:%S')}] "
-                f"Poll interval → {desired} min "
+                f"Poll interval -> {desired} min "
                 f"({'live' if desired == 2 else 'match day' if desired == 5 else 'idle'})"
             )
 

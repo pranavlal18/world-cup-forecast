@@ -148,7 +148,7 @@ def _append_completed_results(new_results: list[dict]):
     with open(COMPLETED_RESULTS_PATH, "w") as f:
         json.dump(existing, f, indent=2)
 
-    print(f"  Saved {len(existing)} completed match result(s) → {COMPLETED_RESULTS_PATH}")
+    print(f"  Saved {len(existing)} completed match result(s) -> {COMPLETED_RESULTS_PATH}")
 
 
 def get_team_stats(df, team, current_elo=None):
@@ -382,7 +382,7 @@ def _record_missing_ko_results():
             recorded.add(teams)
             count += 1
         else:
-            print(f"  ⚠ Could not match knockout result {t1} vs {t2} to a fixture")
+            print(f"   Could not match knockout result {t1} vs {t2} to a fixture")
 
     return count
 
@@ -441,7 +441,7 @@ def run_pipeline(force_simulate=False):
                     )
 
                 if match_no_found is None:
-                    print(f"  ⚠ Could not match knockout result {r['home_team']} vs "
+                    print(f"   Could not match knockout result {r['home_team']} vs "
                           f"{r['away_team']} to a fixture — skipping bracket update")
                 else:
                     save_result(
@@ -540,7 +540,7 @@ def run_pipeline(force_simulate=False):
     output["teams"].sort(key=lambda x:-x["champion"])
 
     with open(OUTPUT_JSON,"w") as f: json.dump(output,f,indent=2)
-    print(f"\n✅ Done! Results → {OUTPUT_JSON}")
+    print(f"\nDone! Results -> {OUTPUT_JSON}")
     print("\nTOP 5:")
     for t in output["teams"][:5]:
         print(f"  {t['team']:25s}  Champion: {t['champion']}%")

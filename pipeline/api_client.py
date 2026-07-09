@@ -41,7 +41,7 @@ COMPETITION  = "WC"
 SEASON       = 2026
 REQUEST_DELAY = 6   # seconds between requests (free tier: 10 req/min)
 
-# ── Stage label map → your pipeline's stage names ─────────────────────────────
+# ── Stage label map -> your pipeline's stage names ─────────────────────────────
 STAGE_MAP = {
     "GROUP_STAGE":        "Group Stage",
     "LAST_32":            "Round of 32",
@@ -52,7 +52,7 @@ STAGE_MAP = {
     "FINAL":              "Final",
 }
 
-# ── Team name normalisation → your GROUPS names ───────────────────────────────
+# ── Team name normalisation -> your GROUPS names ───────────────────────────────
 TEAM_NAME_MAP = {
     "USA":                          "United States",
     "United States":                "United States",
@@ -165,7 +165,7 @@ def fetch_completed_matches() -> list[dict]:
     try:
         all_matches = fetch_all_matches()
     except Exception as e:
-        print(f"  ❌ API fetch failed: {e}")
+        print(f"   API fetch failed: {e}")
         return []
 
     finished = [m for m in all_matches if m.get("status") == "FINISHED"]
@@ -201,7 +201,7 @@ def fetch_live_matches() -> list[dict]:
     try:
         all_matches = fetch_all_matches()
     except Exception as e:
-        print(f"  ❌ API fetch failed: {e}")
+        print(f"   API fetch failed: {e}")
         return []
 
     live = [m for m in all_matches if m.get("status") == "IN_PLAY"]
@@ -246,7 +246,7 @@ def save_fixtures_cache() -> list[dict]:
     with open(FIXTURES_CACHE, "w") as f:
         json.dump({"fetched_at": datetime.now(timezone.utc).isoformat(), "fixtures": fixtures}, f, indent=2)
 
-    print(f"  Saved {len(fixtures)} fixtures → {FIXTURES_CACHE}")
+    print(f"  Saved {len(fixtures)} fixtures -> {FIXTURES_CACHE}")
     return fixtures
 
 
@@ -297,7 +297,7 @@ def save_fixtures_to_db(fixtures: list):
     try:
         from backend.database import get_db
     except ModuleNotFoundError:
-        print("  ⚠ backend module not found — skipping DB save")
+        print("   backend module not found — skipping DB save")
         return False
 
     with get_db() as conn:
@@ -335,7 +335,7 @@ def _save_new_results_csv(results: list[dict]):
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"  Saved {len(results)} result(s) → {csv_path}")
+    print(f"  Saved {len(results)} result(s) -> {csv_path}")
 
 
 # ── CLI helpers ───────────────────────────────────────────────────────────────
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         results = fetch_completed_matches()
         if results:
             for r in results:
-                print(f"  ✅ {r['home_team']} {r['home_score']}–{r['away_score']} {r['away_team']} ({r['stage']})")
+                print(f"   {r['home_team']} {r['home_score']}–{r['away_score']} {r['away_team']} ({r['stage']})")
         else:
             print("  No new completed matches.")
 

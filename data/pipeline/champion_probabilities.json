@@ -1,193 +1,105 @@
 {
-  "generated_at": "2026-07-03T16:38:38.886034",
+  "generated_at": "2026-07-09T12:17:47.798195",
   "simulations": 5000,
   "teams": [
     {
-      "team": "Spain",
-      "group": "H",
-      "elo": 2148.4,
-      "round_of_32": 100.0,
-      "round_of_16": 84.7,
-      "quarter_final": 67.4,
-      "semi_final": 54.1,
-      "final": 41.0,
-      "champion": 23.6
-    },
-    {
       "team": "Argentina",
       "group": "J",
-      "elo": 2133.8,
+      "elo": 2143.2,
       "round_of_32": 100.0,
-      "round_of_16": 75.8,
-      "quarter_final": 53.3,
-      "semi_final": 32.8,
-      "final": 28.0,
-      "champion": 20.3
+      "round_of_16": 100.0,
+      "quarter_final": 77.4,
+      "semi_final": 64.3,
+      "final": 45.6,
+      "champion": 33.7
     },
     {
-      "team": "Portugal",
-      "group": "K",
-      "elo": 1999.7,
+      "team": "Spain",
+      "group": "H",
+      "elo": 2166.3,
       "round_of_32": 100.0,
-      "round_of_16": 63.1,
-      "quarter_final": 47.3,
-      "semi_final": 22.9,
-      "final": 15.5,
-      "champion": 8.9
-    },
-    {
-      "team": "France",
-      "group": "I",
-      "elo": 2106.3,
-      "round_of_32": 100.0,
-      "round_of_16": 70.6,
-      "quarter_final": 31.6,
-      "semi_final": 15.0,
-      "final": 11.6,
-      "champion": 7.8
-    },
-    {
-      "team": "Brazil",
-      "group": "C",
-      "elo": 2014.5,
-      "round_of_32": 100.0,
-      "round_of_16": 77.2,
-      "quarter_final": 47.2,
-      "semi_final": 33.6,
-      "final": 16.1,
-      "champion": 6.8
+      "round_of_16": 100.0,
+      "quarter_final": 100.0,
+      "semi_final": 77.8,
+      "final": 59.7,
+      "champion": 26.4
     },
     {
       "team": "England",
       "group": "L",
-      "elo": 2030.0,
+      "elo": 2053.1,
       "round_of_32": 100.0,
-      "round_of_16": 36.9,
-      "quarter_final": 22.8,
-      "semi_final": 11.7,
-      "final": 8.5,
-      "champion": 5.2
+      "round_of_16": 100.0,
+      "quarter_final": 100.0,
+      "semi_final": 67.1,
+      "final": 23.8,
+      "champion": 14.5
     },
     {
-      "team": "Colombia",
-      "group": "K",
-      "elo": 1994.8,
+      "team": "France",
+      "group": "I",
+      "elo": 2118.2,
       "round_of_32": 100.0,
-      "round_of_16": 53.5,
-      "quarter_final": 24.0,
-      "semi_final": 11.1,
-      "final": 7.4,
-      "champion": 3.8
-    },
-    {
-      "team": "Mexico",
-      "group": "A",
-      "elo": 1949.0,
-      "round_of_32": 100.0,
-      "round_of_16": 64.5,
-      "quarter_final": 33.0,
-      "semi_final": 14.0,
-      "final": 5.6,
-      "champion": 2.7
-    },
-    {
-      "team": "Belgium",
-      "group": "G",
-      "elo": 1899.6,
-      "round_of_32": 100.0,
-      "round_of_16": 83.3,
-      "quarter_final": 24.7,
-      "semi_final": 16.1,
-      "final": 8.6,
-      "champion": 2.7
-    },
-    {
-      "team": "Paraguay",
-      "group": "D",
-      "elo": 1863.2,
-      "round_of_32": 100.0,
-      "round_of_16": 47.9,
-      "quarter_final": 37.2,
-      "semi_final": 23.5,
-      "final": 6.6,
-      "champion": 2.6
-    },
-    {
-      "team": "Morocco",
-      "group": "C",
-      "elo": 1905.1,
-      "round_of_32": 100.0,
-      "round_of_16": 79.2,
-      "quarter_final": 39.4,
-      "semi_final": 22.8,
-      "final": 9.0,
-      "champion": 2.3
-    },
-    {
-      "team": "Switzerland",
-      "group": "B",
-      "elo": 1922.2,
-      "round_of_32": 100.0,
-      "round_of_16": 77.6,
-      "quarter_final": 49.9,
-      "semi_final": 19.7,
-      "final": 6.6,
-      "champion": 2.2
+      "round_of_16": 77.2,
+      "quarter_final": 55.8,
+      "semi_final": 23.1,
+      "final": 11.1,
+      "champion": 7.4
     },
     {
       "team": "Norway",
       "group": "I",
-      "elo": 1945.5,
+      "elo": 1981.4,
       "round_of_32": 100.0,
-      "round_of_16": 24.2,
-      "quarter_final": 10.4,
-      "semi_final": 3.4,
-      "final": 1.6,
-      "champion": 0.8
+      "round_of_16": 100.0,
+      "quarter_final": 100.0,
+      "semi_final": 69.2,
+      "final": 22.7,
+      "champion": 6.8
     },
     {
-      "team": "Australia",
-      "group": "D",
-      "elo": 1785.4,
-      "round_of_32": 100.0,
-      "round_of_16": 22.8,
-      "quarter_final": 8.0,
-      "semi_final": 3.8,
-      "final": 1.0,
-      "champion": 0.2
-    },
-    {
-      "team": "Egypt",
-      "group": "G",
-      "elo": 1735.6,
-      "round_of_32": 100.0,
-      "round_of_16": 15.3,
-      "quarter_final": 6.1,
-      "semi_final": 2.4,
-      "final": 0.9,
-      "champion": 0.2
-    },
-    {
-      "team": "Canada",
+      "team": "Switzerland",
       "group": "B",
-      "elo": 1782.4,
+      "elo": 1958.8,
       "round_of_32": 100.0,
-      "round_of_16": 35.5,
-      "quarter_final": 13.4,
-      "semi_final": 3.3,
-      "final": 0.8,
-      "champion": 0.1
+      "round_of_16": 80.1,
+      "quarter_final": 20.3,
+      "semi_final": 18.7,
+      "final": 8.6,
+      "champion": 3.7
     },
     {
-      "team": "United States",
-      "group": "D",
-      "elo": 1794.4,
+      "team": "Belgium",
+      "group": "G",
+      "elo": 1920.8,
       "round_of_32": 100.0,
-      "round_of_16": 20.8,
-      "quarter_final": 5.4,
-      "semi_final": 1.9,
-      "final": 0.4,
-      "champion": 0.1
+      "round_of_16": 75.9,
+      "quarter_final": 66.5,
+      "semi_final": 16.8,
+      "final": 9.5,
+      "champion": 2.1
+    },
+    {
+      "team": "Morocco",
+      "group": "C",
+      "elo": 1924.9,
+      "round_of_32": 100.0,
+      "round_of_16": 100.0,
+      "quarter_final": 39.0,
+      "semi_final": 9.8,
+      "final": 2.9,
+      "champion": 1.1
+    },
+    {
+      "team": "Mexico",
+      "group": "A",
+      "elo": 1925.9,
+      "round_of_32": 100.0,
+      "round_of_16": 73.1,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
     },
     {
       "team": "South Africa",
@@ -223,6 +135,17 @@
       "champion": 0.0
     },
     {
+      "team": "Canada",
+      "group": "B",
+      "elo": 1762.6,
+      "round_of_32": 100.0,
+      "round_of_16": 100.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
       "team": "Bosnia and Herzegovina",
       "group": "B",
       "elo": 1601.4,
@@ -245,6 +168,17 @@
       "champion": 0.0
     },
     {
+      "team": "Brazil",
+      "group": "C",
+      "elo": 1978.6,
+      "round_of_32": 100.0,
+      "round_of_16": 100.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
       "team": "Haiti",
       "group": "C",
       "elo": 1522.6,
@@ -260,6 +194,39 @@
       "group": "C",
       "elo": 1744.3,
       "round_of_32": 0.0,
+      "round_of_16": 0.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
+      "team": "United States",
+      "group": "D",
+      "elo": 1773.2,
+      "round_of_32": 100.0,
+      "round_of_16": 46.1,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
+      "team": "Paraguay",
+      "group": "D",
+      "elo": 1851.3,
+      "round_of_32": 100.0,
+      "round_of_16": 0.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
+      "team": "Australia",
+      "group": "D",
+      "elo": 1751.1,
+      "round_of_32": 100.0,
       "round_of_16": 0.0,
       "quarter_final": 0.0,
       "semi_final": 0.0,
@@ -366,6 +333,17 @@
       "champion": 0.0
     },
     {
+      "team": "Egypt",
+      "group": "G",
+      "elo": 1763.4,
+      "round_of_32": 100.0,
+      "round_of_16": 100.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
       "team": "Iran",
       "group": "G",
       "elo": 1762.9,
@@ -390,12 +368,12 @@
     {
       "team": "Cape Verde",
       "group": "H",
-      "elo": 1620.2,
+      "elo": 1617.2,
       "round_of_32": 100.0,
-      "round_of_16": 16.7,
-      "quarter_final": 1.9,
-      "semi_final": 0.5,
-      "final": 0.1,
+      "round_of_16": 0.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
       "champion": 0.0
     },
     {
@@ -476,6 +454,17 @@
       "champion": 0.0
     },
     {
+      "team": "Portugal",
+      "group": "K",
+      "elo": 1981.8,
+      "round_of_32": 100.0,
+      "round_of_16": 100.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
       "team": "DR Congo",
       "group": "K",
       "elo": 1697.6,
@@ -498,6 +487,17 @@
       "champion": 0.0
     },
     {
+      "team": "Colombia",
+      "group": "K",
+      "elo": 1963.1,
+      "round_of_32": 100.0,
+      "round_of_16": 80.2,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
+      "champion": 0.0
+    },
+    {
       "team": "Croatia",
       "group": "L",
       "elo": 1885.6,
@@ -511,12 +511,12 @@
     {
       "team": "Ghana",
       "group": "L",
-      "elo": 1575.2,
+      "elo": 1570.3,
       "round_of_32": 100.0,
-      "round_of_16": 13.9,
-      "quarter_final": 4.3,
-      "semi_final": 1.0,
-      "final": 0.1,
+      "round_of_16": 0.0,
+      "quarter_final": 0.0,
+      "semi_final": 0.0,
+      "final": 0.0,
       "champion": 0.0
     },
     {
